@@ -22,14 +22,7 @@ def export_stl(context, filepath):
 
 
 def stl_to_msh(stl_file, msh_file):
-    try:
-        import gmsh
-    except ModuleNotFoundError:
-        print("gmsh not found")
-        from .pip_utils import Pip
-        Pip._ensure_user_site_package()
-        Pip().install("gmsh")
-        import gmsh
+    import gmsh
     gmsh.initialize()
     gmsh.open(stl_file)
 
@@ -49,5 +42,3 @@ def stl_to_msh(stl_file, msh_file):
     # Save the .msh file
     gmsh.write(msh_file)
     gmsh.finalize()
-    # except ModuleNotFoundError:
-    #     print("gmsh not found")

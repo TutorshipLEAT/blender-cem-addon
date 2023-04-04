@@ -1,7 +1,10 @@
 import bpy
 
-class BlendmshPreferences(bpy.types.AddonPreferences):
-    bl_idname = "BlendmshPreferences"
+DEPENDENCIES = ['gmsh', 'matplotlib']
+
+
+class DependenciesPreferences(bpy.types.AddonPreferences):
+    bl_idname = "mesh_converter"
 
     def draw(self, context):
 
@@ -10,33 +13,30 @@ class BlendmshPreferences(bpy.types.AddonPreferences):
         Pip._ensure_user_site_package()
 
         layout = self.layout
-        if importlib.util.find_spec('gmsh') is not None:
-            layout.label(text='gmsh loaded.', icon='INFO')
-        else:
-            layout.label(text='Blendmsh requires gmsh!', icon='ERROR')
-            row = layout.row()
-            row.operator('blendmsh.installer')
+        for dep in DEPENDENCIES:
+            if importlib.util.find_spec(dep) is not None:
+                layout.label(text=dep + ' loaded.', icon='INFO')
+            else:
+                layout.label(text="Missing dependencies", icon='ERROR')
+                row = layout.row()
+                row.operator('blendmsh.installer')
+                break
 
-class BlendmshInstaller(bpy.types.Operator):
-    print(__name__)
+
+class DependenciesInstaller(bpy.types.Operator):
     bl_idname = "blendmsh.installer"
-    bl_label = "Install gmsh"
-    bl_description = ("Install gmsh")
+    bl_label = "Install dependencies"
+    bl_description = ("Install dependencies")
 
     def execute(self, context):
         try:
-            print("Installing gmsh...")
-            import importlib
-
-            print(importlib.util.find_spec('gmsh'))
-
+            print("Installing dependencies...")
             from src.pip_utils import Pip
             Pip.upgrade_pip()
-            Pip.install('gmsh')
+            for dep in DEPENDENCIES:
+                Pip.install(dep)
 
-            import gmsh
-            print(gmsh.__version__)
-            self.report({'INFO'}, 'Successfully installed gmsh.')
+            self.report({'INFO'}, 'Dependencies successfully installed.')
         except ModuleNotFoundError:
-            self.report({'ERROR'}, 'Could not install gmsh, Kindly install it manually.')
+            self.report({'ERROR'}, 'Could not install dependencies.')
         return {'FINISHED'}

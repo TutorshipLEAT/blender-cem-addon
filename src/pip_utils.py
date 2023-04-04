@@ -1,34 +1,10 @@
-# -*- coding:utf-8 -*-
-
-# ##### BEGIN GPL LICENSE BLOCK #####
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software Foundation,
-#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-#
-# ##### END GPL LICENSE BLOCK #####
-
-# <pep8 compliant>
-
-# ----------------------------------------------------------
-# Author: Stephen Leger (s-leger)
-#
-# ----------------------------------------------------------
 import bpy
 import subprocess
 import sys
 
+
 PYPATH = sys.executable
+
 
 class Pip:
 
@@ -44,7 +20,8 @@ class Pip:
         site_package = bpy.utils.user_resource('SCRIPTS', path="site_package")
 
         if not os.path.exists(site_package):
-            site_package = bpy.utils.user_resource('SCRIPTS', path="site_package", create=True)
+            site_package = bpy.utils.user_resource(
+                'SCRIPTS', path="site_package", create=True)
             site.addsitedir(site_package)
         if site_package not in sys.path:
             sys.path.append(site_package)
@@ -62,6 +39,7 @@ class Pip:
             site_package = bpy.utils.user_resource('SCRIPTS', "site_package", create=True)
             site.addsitedir(site_package)
     '''
+
     def _cmd(self, action, options, module):
         if options is not None and "--user" in options:
             self._ensure_user_site_package()
@@ -75,7 +53,8 @@ class Pip:
         return self._run(cmd)
 
     def _popen(self, cmd):
-        popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
+        popen = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, universal_newlines=True)
         for stdout_line in iter(popen.stdout.readline, ""):
             yield stdout_line
         popen.stdout.close()
@@ -107,7 +86,8 @@ class Pip:
 
     @staticmethod
     def upgrade_pip():
-        return Pip()._cmd("install", "--upgrade", "pip")
+        import pip
+        return pip.main(["install", "--upgrade", "pip"])
 
     @staticmethod
     def uninstall(module, options=None):
@@ -118,10 +98,12 @@ class Pip:
         [1] https://pip.pypa.io/en/stable/reference/pip_install/#id29
         [2] https://pip.pypa.io/en/stable/reference/pip_install/#id47
         """
+        import pip
+
         if options is None or options.strip() == "":
             # force confirm
             options = "-y"
-        return Pip()._cmd("uninstall", options, module)
+        return pip.main(["uninstall", module, options])
 
     @staticmethod
     def install(module, options=None):
@@ -133,7 +115,8 @@ class Pip:
         [2] https://pip.pypa.io/en/stable/reference/pip_install/#id47
         """
         import pip
-        pip.main(["install", "gmsh"])
+        pip
+        return pip.main(["install", module])
 
     @staticmethod
     def blender_version():
@@ -147,6 +130,5 @@ class Pip:
         """
         :return: python version object
         """
-        import sys
         # version.major, version.minor, version.micro
         return sys.version_info
