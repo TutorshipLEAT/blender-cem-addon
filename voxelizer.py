@@ -26,7 +26,7 @@ my_material = CustomMaterial(sigma=1, mu=1, epsilon=1, custom_property=.5)
 trimesh.visual = my_material
 
 
-voxelgrid = mesh.voxelized(0.01)
+voxelgrid = mesh.voxelized(0.1)
 boxes = voxelgrid.as_boxes()
 
 mtl_filename = "my_material"
