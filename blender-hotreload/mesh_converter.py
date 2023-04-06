@@ -309,7 +309,7 @@ class DependenciesInstaller(bpy.types.Operator):
 
     def execute(self, context):
         try:
-            print("Installing dependencies...")
+            self.report({"INFO"}, "Installing dependencies...")
             from src.pip_utils import Pip
             Pip.upgrade_pip()
             for dep in DEPENDENCIES:
