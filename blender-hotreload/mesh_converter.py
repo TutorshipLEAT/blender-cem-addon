@@ -4,7 +4,9 @@
 
 
 import bpy
+from bpy.types import Panel, Operator, UIList
 import os
+from mathutils import Vector
 
 bl_info = {
     "name": "STL to MSH Converter",
@@ -61,38 +63,133 @@ class OBJECT_OT_stl_to_msh(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class OBJECT_PT_material_properties(bpy.types.Panel):
-    bl_label = "Material Properties"
-    bl_idname = "OBJECT_PT_material_properties"
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = "object"
 
-    @classmethod
-    def poll(cls, context):
-        obj = context.object
-        return obj and obj.type == 'MESH'
+
+
+
+
+
+
+
+
+###### MAIN UI ######
+
+class OBJECT_UL_List(bpy.types.UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        layout.label(text=item.object.name, icon='OBJECT_DATA')
+
+class FilteredObjectItem(bpy.types.PropertyGroup):
+    object: bpy.props.PointerProperty(type=bpy.types.Object)
+
+def is_inside_cube(obj, cube):
+    cube_bounds = [cube.matrix_world @ Vector(corner) for corner in cube.bound_box]
+    cube_min = Vector((min(v[i] for v in cube_bounds) for i in range(3)))
+    cube_max = Vector((max(v[i] for v in cube_bounds) for i in range(3)))
+
+    obj_bounds = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
+    obj_min = Vector((min(v[i] for v in obj_bounds) for i in range(3)))
+    obj_max = Vector((max(v[i] for v in obj_bounds) for i in range(3)))
+
+    return all(cube_min[i] <= obj_min[i] and obj_max[i] <= cube_max[i] for i in range(3))
+
+
+def update_filtered_objects(self, context):
+    container_name = "CubeScene"
+    container = bpy.data.objects.get(container_name)
+    container.display_type = 'WIRE'
+    if container:
+        objects_inside_cube = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH' and is_inside_cube(obj, container)]
+
+        # Update filtered_objects
+        filtered_objects = context.scene.FilteredObjects
+        filtered_objects.clear()
+        for obj in objects_inside_cube:
+            if (obj.name == container_name):
+                continue
+            item = filtered_objects.add()
+            item.object = obj
+
+class OBJECT_PT_material_properties(bpy.types.Panel):
+    bl_label = 'Converter'
+    bl_idname = 'OBJECT_PT_data_load'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'Converter'
 
     def draw(self, context):
         layout = self.layout
-        obj = context.object
-        material_props = obj.material_properties
+
+        container = bpy.data.objects.get("CubeScene")
+        if not container:
+            print("CubeScene not found.")
+            layout.label(text="CubeScene not found.")
+            layout.operator("scene.create_cubescene", text="Create CubeScene")
+        else:
+            self.draw_scene_section(context, layout)
+        
+        self.draw_simulation_section(context, layout)
+
+
+    def draw_scene_section(self, context, layout):
+        print("Draw scene converter")
 
         row = layout.row()
-        row.prop(material_props, 'sigma', text="Sigma")
-        row = layout.row()
-        row.prop(material_props, 'mu', text="mu")
-        row = layout.row()
-        row.prop(material_props, 'epsilon', text="epsilon")
-
-        layout.separator()
+        row.label(text='Detected Objects', icon='ALIGN_JUSTIFY')
+        
+        col = layout.column()
+        col.template_list("OBJECT_UL_List", "", context.scene, "FilteredObjects", context.scene, "active_object_index")
 
         row = layout.row()
-        row.operator(OBJECT_OT_stl_to_msh.bl_idname,
-                     text="Convert Selected to MSH")
+        row.operator("scene.update_list", text="Update List")
+        row.operator(OBJECT_OT_stl_to_msh.bl_idname, text="Convert Selected to MSH 2")
+        
+        
+    def draw_simulation_section(self, context, layout):
+        row = layout.row()
+        row.label(text='Simulation', icon='MOD_WAVE')
+        
+        
+        
+        
+
+class UpdateListOperator(bpy.types.Operator):
+    bl_idname = "scene.update_list"
+    bl_label = "Update List Operator"
+
+    def execute(self, context):
+        update_filtered_objects(self=None, context=context)
+        return {'FINISHED'}
+
+
+class CreateCubeSceneOperator(bpy.types.Operator):
+    bl_idname = "scene.create_cubescene"
+    bl_label = "Create CubeScene Operator"
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="Create a CubeScene object?")
+
+    def execute(self, context):
+        bpy.ops.mesh.primitive_cube_add()
+        cube = context.active_object
+        cube.name = "CubeScene"
+        cube.display_type = 'WIRE'
+        return {'FINISHED'}
 
 def menu_func(self, context):
     self.layout.operator(OBJECT_OT_stl_to_msh.bl_idname)
+
+
+
+
+
+
+
+
+
 
 
 ###### Converters ######
@@ -101,7 +198,8 @@ def export_stl(context, filepath):
     # Store the current selection
     current_selected_objects = context.selected_objects
 
-    # Deselect all objects
+    # Deselect all objectsouf juste à temps ;)
+    
     bpy.ops.object.select_all(action='DESELECT')
 
     # Select only the mesh objects and export them
@@ -328,10 +426,18 @@ def register():
     bpy.utils.register_class(DependenciesInstaller)
     bpy.utils.register_class(MaterialProperties)
     bpy.utils.register_class(OBJECT_OT_stl_to_msh)
-    bpy.utils.register_class(OBJECT_PT_material_properties)
     bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
     bpy.types.Object.material_properties = bpy.props.PointerProperty(
         type=MaterialProperties)
+    
+    bpy.utils.register_class(FilteredObjectItem)
+    bpy.utils.register_class(OBJECT_UL_List)
+    bpy.utils.register_class(OBJECT_PT_material_properties)
+    bpy.utils.register_class(UpdateListOperator)
+    bpy.utils.register_class(CreateCubeSceneOperator)
+    bpy.types.Scene.FilteredObjects = bpy.props.CollectionProperty(type=FilteredObjectItem)
+    bpy.types.Scene.active_object_index = bpy.props.IntProperty(update=update_filtered_objects)
+
 
 
 def unregister():
@@ -339,10 +445,18 @@ def unregister():
     bpy.utils.unregister_class(DependenciesInstaller)
     bpy.utils.unregister_class(MaterialProperties)
     bpy.utils.unregister_class(OBJECT_OT_stl_to_msh)
-    bpy.utils.unregister_class(OBJECT_PT_material_properties)
     bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
     del bpy.types.Object.material_properties
 
+    
+    bpy.utils.unregister_class(FilteredObjectItem)
+    bpy.utils.unregister_class(OBJECT_UL_List)
+    bpy.utils.unregister_class(OBJECT_PT_material_properties)
+    bpy.utils.unregister(UpdateListOperator)
+    bpy.utils.unregister(CreateCubeSceneOperator)
+    del bpy.types.Scene.FilteredObjects
+    del bpy.types.Scene.active_object_index
 
 if __name__ == "__main__":
     register()
+    bpy.context.scene.active_object_index = 0
