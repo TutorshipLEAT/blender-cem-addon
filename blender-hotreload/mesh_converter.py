@@ -7,6 +7,7 @@ import sys
 import subprocess
 import trimesh
 import seaborn as sns
+import matplotlib.pyplot as plt
 import bpy
 from bpy.types import Panel, Operator, UIList
 import os
