@@ -1,5 +1,5 @@
-newmtl my_material
+newmtl object
 sigma 1.00000000
 mu 1.00000000
 epsilon 1.00000000
-custom_property 0.50000000
+custom_property 0.5

@@ -3,6 +3,9 @@
 # from src.addon_properties import MaterialProperties, OBJECT_OT_stl_to_msh, OBJECT_PT_material_properties, menu_func
 
 
+import sys
+import subprocess
+import trimesh
 import bpy
 from bpy.types import Panel, Operator, UIList
 import os
@@ -39,37 +42,33 @@ class MaterialProperties(bpy.types.PropertyGroup):
 
 class OBJECT_OT_stl_to_msh(bpy.types.Operator):
     bl_idname = "object.stl_to_msh"
-    bl_label = "Convert to MSH"
+    bl_label = "Generate OBJ file"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         # Define file paths
         blend_directory = bpy.path.abspath("//")
-        if not os.path.exists(blend_directory):
-            blend_directory = os.path.expanduser("~")
-        stl_file = os.path.join(blend_directory, "object.stl")
-        msh_file = os.path.join(blend_directory, "object.msh")
 
+        if not os.path.exists(blend_directory):
+            self.report({'ERROR'}, "Blend file not saved, Please open an existing blend file or save the current blend file")
+            return {'FINISHED'}
+
+            # blend_directory = os.path.expanduser("~")
+        stl_file = os.path.join(blend_directory, "export", "object.stl")
+        obj_file = os.path.join(blend_directory, "export", "object.obj")
+        if not os.path.exists(os.path.join(blend_directory, "export")):
+            os.makedirs(os.path.join(blend_directory, "export"))
         # Export the selected objects to an STL file
         export_stl(context, stl_file)
 
         # Convert the STL file to a .msh file using Gmsh
-        stl_to_msh(stl_file, msh_file)
+        stl_to_msh(blend_directory, stl_file, obj_file)
 
         # Add material properties to the objects
         add_material_properties()
 
-        self.report({'INFO'}, "Conversion to MSH completed")
+        self.report({'INFO'}, "Conversion to OBJ completed")
         return {'FINISHED'}
-
-
-
-
-
-
-
-
-
 
 
 ###### MAIN UI ######
@@ -78,15 +77,19 @@ class OBJECT_UL_List(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         layout.label(text=item.object.name, icon='OBJECT_DATA')
 
+
 class FilteredObjectItem(bpy.types.PropertyGroup):
     object: bpy.props.PointerProperty(type=bpy.types.Object)
 
+
 def is_inside_cube(obj, cube):
-    cube_bounds = [cube.matrix_world @ Vector(corner) for corner in cube.bound_box]
+    cube_bounds = [cube.matrix_world @
+                   Vector(corner) for corner in cube.bound_box]
     cube_min = Vector((min(v[i] for v in cube_bounds) for i in range(3)))
     cube_max = Vector((max(v[i] for v in cube_bounds) for i in range(3)))
 
-    obj_bounds = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
+    obj_bounds = [obj.matrix_world @
+                  Vector(corner) for corner in obj.bound_box]
     obj_min = Vector((min(v[i] for v in obj_bounds) for i in range(3)))
     obj_max = Vector((max(v[i] for v in obj_bounds) for i in range(3)))
 
@@ -98,7 +101,8 @@ def update_filtered_objects(self, context):
     container = bpy.data.objects.get(container_name)
     container.display_type = 'WIRE'
     if container:
-        objects_inside_cube = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH' and is_inside_cube(obj, container)]
+        objects_inside_cube = [
+            obj for obj in bpy.context.scene.objects if obj.type == 'MESH' and is_inside_cube(obj, container)]
 
         # Update filtered_objects
         filtered_objects = context.scene.FilteredObjects
@@ -108,6 +112,7 @@ def update_filtered_objects(self, context):
                 continue
             item = filtered_objects.add()
             item.object = obj
+
 
 class OBJECT_PT_material_properties(bpy.types.Panel):
     bl_label = 'Converter'
@@ -126,31 +131,27 @@ class OBJECT_PT_material_properties(bpy.types.Panel):
             layout.operator("scene.create_cubescene", text="Create CubeScene")
         else:
             self.draw_scene_section(context, layout)
-        
+
         self.draw_simulation_section(context, layout)
 
-
     def draw_scene_section(self, context, layout):
-        print("Draw scene converter")
 
         row = layout.row()
         row.label(text='Detected Objects', icon='ALIGN_JUSTIFY')
-        
+
         col = layout.column()
-        col.template_list("OBJECT_UL_List", "", context.scene, "FilteredObjects", context.scene, "active_object_index")
+        col.template_list("OBJECT_UL_List", "", context.scene,
+                          "FilteredObjects", context.scene, "active_object_index")
 
         row = layout.row()
         row.operator("scene.update_list", text="Update List")
-        row.operator(OBJECT_OT_stl_to_msh.bl_idname, text="Convert Selected to MSH 2")
-        
-        
+        row.operator(OBJECT_OT_stl_to_msh.bl_idname,
+                     text="Convert Selected to MSH 2")
+
     def draw_simulation_section(self, context, layout):
         row = layout.row()
         row.label(text='Simulation', icon='MOD_WAVE')
-        
-        
-        
-        
+
 
 class UpdateListOperator(bpy.types.Operator):
     bl_idname = "scene.update_list"
@@ -179,17 +180,9 @@ class CreateCubeSceneOperator(bpy.types.Operator):
         cube.display_type = 'WIRE'
         return {'FINISHED'}
 
+
 def menu_func(self, context):
     self.layout.operator(OBJECT_OT_stl_to_msh.bl_idname)
-
-
-
-
-
-
-
-
-
 
 
 ###### Converters ######
@@ -199,7 +192,7 @@ def export_stl(context, filepath):
     current_selected_objects = context.selected_objects
 
     # Deselect all objectsouf juste à temps ;)
-    
+
     bpy.ops.object.select_all(action='DESELECT')
 
     # Select only the mesh objects and export them
@@ -215,34 +208,145 @@ def export_stl(context, filepath):
         obj.select_set(True)
 
 
-def stl_to_msh(stl_file, msh_file):
-    import gmsh
-    gmsh.initialize()
-    gmsh.open(stl_file)
+class CustomMaterial(trimesh.visual.material.Material):
+    """
+    Custom material for the voxelized mesh.
 
-    # Set Gmsh options
-    gmsh.option.setNumber("Mesh.CharacteristicLengthMin", 0.1)
-    gmsh.option.setNumber("Mesh.CharacteristicLengthMax", 1.0)
+    Parameters
+    ----------
+    mtl_name : str
+        Name of the material.
+    kwargs : dict
+        Keyword arguments for the material.
+    """
 
-    # Set mesh algorithm to Delaunay
-    # gmsh.option.setNumber("Mesh.Algorithm", 1)
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
 
-    # fill the volume with tetrahedra
-    gmsh.option.setNumber("Mesh.Algorithm3D", 1)
+    @property
+    def main_color(self):
+        return None
 
-    # Generate 3D mesh
-    gmsh.model.mesh.generate(3)
+    def __hash__(self):
+        return hash(self.mtl_name)
 
-    # Save the .msh file
-    gmsh.write(msh_file)
-    gmsh.finalize()
+    def to_obj(self, mtl_file):
+        """
+        Exports the material as an obj file.
+
+        Parameters
+        ----------
+        mtl_name : str
+            Name of the material.
+        """
+        mtl_name = os.path.splitext(os.path.basename(mtl_file))[0]
+        data = ["newmtl {}".format(mtl_name)]
+        for k, v in self.kwargs.items():
+            if isinstance(v, int):
+                data.append("{} {:0.8f}".format(k, v))
+            else:
+                data.append("{} {}".format(k, v))
+        data = "\n".join(data)
+        with open(mtl_file, "w+") as f:
+            f.write(data)
+        return data
+
+
+class Voxelizer:
+    """
+    Voxelizes a stl file and exports it as an obj file.
+    """
+
+    def __init__(self, stl_file, mtl_name, blender_dir, voxel_size=.1):
+        """
+        Parameters
+        ----------
+        stl_file : str
+            Path to the stl file.
+        mtl_name : str
+            Name of the material.
+        voxel_size : float
+            Size of the voxels.
+        """
+        self.stl_file = stl_file
+        self.voxel_size = voxel_size
+        self.blender_dir = blender_dir
+        self.mtl_name = mtl_name
+        self.mtl_file = os.path.join(self.blender_dir, "materials", mtl_name + ".mtl")
+
+    def export_obj(self, obj_file="export.obj"):
+        """
+        Exports the voxelized stl file as an obj file.
+        """
+        boxes = self._voxelize()
+        self._save(boxes, obj_file)
+
+    def _voxelize(self):
+        """
+        Voxelizes the stl file.
+
+        Returns
+        -------
+        boxes : trimesh.Trimesh
+            Voxelized mesh.
+        """
+        mesh = trimesh.load(self.stl_file)
+        voxelgrid = mesh.voxelized(self.voxel_size)
+        return voxelgrid.as_boxes()
+
+    def _save_obj(self, boxes, obj_file="export.obj"):
+        """
+        Saves the voxelized mesh as an obj file.
+
+        Parameters
+        ----------
+        boxes : trimesh.Trimesh
+            Voxelized mesh.
+        obj_file : str
+            Path to the obj file.
+        """
+        with open(obj_file, "w+") as f:
+            f.write(trimesh.exchange.obj.export_obj(
+                boxes, mtl_name=self.mtl_file))
+
+    def _save_mtl(self, custom_material: None | CustomMaterial = None):
+        """
+        Saves the material of the voxelized mesh as a mtl file.
+
+        Parameters
+        ----------
+        custom_material : CustomMaterial
+            Custom material.
+        """
+        if custom_material is None:
+            custom_material = CustomMaterial(
+                sigma=1, mu=1, epsilon=1, custom_property=.5)
+        mtl_data = custom_material.to_obj(self.mtl_file)
+
+        with open(self.mtl_file, "w+") as f:
+            f.write(mtl_data)
+
+    def _save(self, boxes, obj_file="export.obj", custom_material: CustomMaterial = None):
+        self._save_mtl(custom_material)
+        self._save_obj(boxes, obj_file)
+
+def stl_to_msh(blender_dir, stl_file, obj_file):
+    """
+    Converts a stl file to a msh file.
+
+    Parameters
+    ----------
+    stl_file : str
+        Path to the stl file.
+    msh_file : str
+        Path to the msh file.
+    """
+    v = Voxelizer(stl_file, stl_file.split(".stl")[0], blender_dir)
+    v.export_obj(obj_file=obj_file)
+
 
 
 ###### PIP ######
-
-import bpy
-import subprocess
-import sys
 
 
 PYPATH = sys.executable
@@ -310,7 +414,6 @@ class Pip:
                 status = line.strip()
             if "Error:" in line:
                 status = line.strip()
-            print(line)
             if "Successfully" in line:
                 status = line.strip()
                 res = True
@@ -377,7 +480,8 @@ class Pip:
 
 ###### Dependencies ######
 
-DEPENDENCIES = ['gmsh', 'matplotlib']
+
+DEPENDENCIES = ['matplotlib', 'trimesh']
 
 
 class DependenciesPreferences(bpy.types.AddonPreferences):
@@ -386,7 +490,7 @@ class DependenciesPreferences(bpy.types.AddonPreferences):
     def draw(self, context):
 
         import importlib
-        from src.pip_utils import Pip
+        # from src.pip_utils import Pip
         Pip._ensure_user_site_package()
 
         layout = self.layout
@@ -408,7 +512,7 @@ class DependenciesInstaller(bpy.types.Operator):
     def execute(self, context):
         try:
             self.report({"INFO"}, "Installing dependencies...")
-            from src.pip_utils import Pip
+            # from src.pip_utils import Pip
             Pip.upgrade_pip()
             for dep in DEPENDENCIES:
                 Pip.install(dep)
@@ -420,6 +524,7 @@ class DependenciesInstaller(bpy.types.Operator):
 
 ###### Register ######
 
+
 def register():
     print("Registering...")
     bpy.utils.register_class(DependenciesPreferences)
@@ -429,15 +534,18 @@ def register():
     bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
     bpy.types.Object.material_properties = bpy.props.PointerProperty(
         type=MaterialProperties)
-    
+
+    # list item in memory context blender +
     bpy.utils.register_class(FilteredObjectItem)
-    bpy.utils.register_class(OBJECT_UL_List)
+    bpy.utils.register_class(OBJECT_UL_List)  # list in blender UI +
     bpy.utils.register_class(OBJECT_PT_material_properties)
+    # update list when object is added or removed +
     bpy.utils.register_class(UpdateListOperator)
     bpy.utils.register_class(CreateCubeSceneOperator)
-    bpy.types.Scene.FilteredObjects = bpy.props.CollectionProperty(type=FilteredObjectItem)
-    bpy.types.Scene.active_object_index = bpy.props.IntProperty(update=update_filtered_objects)
-
+    bpy.types.Scene.FilteredObjects = bpy.props.CollectionProperty(
+        type=FilteredObjectItem)  # type of list item +
+    bpy.types.Scene.active_object_index = bpy.props.IntProperty(
+        update=update_filtered_objects)  # index of active item in list +
 
 
 def unregister():
@@ -448,14 +556,14 @@ def unregister():
     bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
     del bpy.types.Object.material_properties
 
-    
     bpy.utils.unregister_class(FilteredObjectItem)
     bpy.utils.unregister_class(OBJECT_UL_List)
     bpy.utils.unregister_class(OBJECT_PT_material_properties)
-    bpy.utils.unregister(UpdateListOperator)
-    bpy.utils.unregister(CreateCubeSceneOperator)
+    bpy.utils.unregister_class(UpdateListOperator)
+    bpy.utils.unregister_class(CreateCubeSceneOperator)
     del bpy.types.Scene.FilteredObjects
     del bpy.types.Scene.active_object_index
+
 
 if __name__ == "__main__":
     register()
