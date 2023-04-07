@@ -6,6 +6,7 @@
 import sys
 import subprocess
 import trimesh
+import seaborn as sns
 import bpy
 from bpy.types import Panel, Operator, UIList
 import os
@@ -77,10 +78,8 @@ class OBJECT_UL_List(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         layout.label(text=item.object.name, icon='OBJECT_DATA')
 
-
 class FilteredObjectItem(bpy.types.PropertyGroup):
     object: bpy.props.PointerProperty(type=bpy.types.Object)
-
 
 def is_inside_cube(obj, cube):
     cube_bounds = [cube.matrix_world @
@@ -112,7 +111,6 @@ def update_filtered_objects(self, context):
                 continue
             item = filtered_objects.add()
             item.object = obj
-
 
 class OBJECT_PT_material_properties(bpy.types.Panel):
     bl_label = 'Converter'
@@ -153,6 +151,9 @@ class OBJECT_PT_material_properties(bpy.types.Panel):
         row.label(text='Simulation', icon='MOD_WAVE')
 
 
+
+
+
 class UpdateListOperator(bpy.types.Operator):
     bl_idname = "scene.update_list"
     bl_label = "Update List Operator"
@@ -179,7 +180,6 @@ class CreateCubeSceneOperator(bpy.types.Operator):
         cube.name = "CubeScene"
         cube.display_type = 'WIRE'
         return {'FINISHED'}
-
 
 def menu_func(self, context):
     self.layout.operator(OBJECT_OT_stl_to_msh.bl_idname)
@@ -481,7 +481,8 @@ class Pip:
 ###### Dependencies ######
 
 
-DEPENDENCIES = ['matplotlib', 'trimesh']
+
+DEPENDENCIES = ['seaborn', 'trimesh', 'matplotlib']
 
 
 class DependenciesPreferences(bpy.types.AddonPreferences):
@@ -524,7 +525,6 @@ class DependenciesInstaller(bpy.types.Operator):
 
 ###### Register ######
 
-
 def register():
     print("Registering...")
     bpy.utils.register_class(DependenciesPreferences)
@@ -535,7 +535,6 @@ def register():
     bpy.types.Object.material_properties = bpy.props.PointerProperty(
         type=MaterialProperties)
 
-    # list item in memory context blender +
     bpy.utils.register_class(FilteredObjectItem)
     bpy.utils.register_class(OBJECT_UL_List)  # list in blender UI +
     bpy.utils.register_class(OBJECT_PT_material_properties)
@@ -556,6 +555,7 @@ def unregister():
     bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
     del bpy.types.Object.material_properties
 
+
     bpy.utils.unregister_class(FilteredObjectItem)
     bpy.utils.unregister_class(OBJECT_UL_List)
     bpy.utils.unregister_class(OBJECT_PT_material_properties)
@@ -563,6 +563,72 @@ def unregister():
     bpy.utils.unregister_class(CreateCubeSceneOperator)
     del bpy.types.Scene.FilteredObjects
     del bpy.types.Scene.active_object_index
+
+######## Abstract_plot ##########
+
+
+Labels = list[str]
+Ticks = list[int]
+
+
+class AbstractPlot:
+
+    def set_legend(self, **kwargs) -> None:
+        if ('labels' in kwargs and 'handles' in kwargs):
+            plt.legend(labels=kwargs['labels'], handles=kwargs['handles'])
+        elif ('labels' in kwargs and not 'handles' in kwargs):
+            plt.legend(labels=kwargs['labels'])
+        elif (not 'labels' in kwargs and 'handles' in kwargs):
+            plt.legend(handles=kwargs['handles'])
+
+    def set_title(self, title: str) -> None:
+        plt.title(title)
+
+    def set_xlabel(self, label: str) -> None:
+        plt.xlabel(label)
+
+    def set_ylabel(self, label: str) -> None:
+        plt.ylabel(label)
+
+    def set_xticks(self, ticks: Ticks):
+        plt.xticks(ticks)
+
+    def set_yticks(self, ticks: Ticks):
+        plt.yticks(ticks)
+
+    def show(self):
+        plt.show()
+
+    def save_to_png(self, path: str) -> None:
+        plt.savefig(f'{path}.png')
+
+######## pie_chart ##########
+
+
+Wedges = list[int]
+Labels = list[str]
+
+
+class PieChart(AbstractPlot):
+
+    def create_pie(self, wedges: Wedges, labels: Labels, autopct: str, colors=None):
+        plt.pie(x=wedges, labels=labels, colors=colors, autopct=autopct)
+
+######## bar_chart ##########
+
+
+class BarChart(AbstractPlot):
+
+    def create_bar(self, bar_position: int, data: list, width: float, bottom=0, align='center', color=None):
+        plt.bar(bar_position, data, color=color,
+                width=width, bottom=bottom, align=align)
+
+
+class HeatMap(AbstractPlot):
+
+    def create_heatmap(self, data, annot=False, fmt=".1f", cmap=None, vmin=None, vmax=None, linewidth=.0, linecolor="white"):
+        sns.heatmap(data=data, annot=annot, fmt=fmt,
+                    cmap=cmap, vmin=vmin, vmax=vmax, linewidth=linewidth, linecolor=linecolor)
 
 
 if __name__ == "__main__":
