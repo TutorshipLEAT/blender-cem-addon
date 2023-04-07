@@ -1,3 +1,4 @@
 matplotlib
 fake-bpy-module-3.3
 trimesh
+seaborn
