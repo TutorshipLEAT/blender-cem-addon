@@ -113,13 +113,13 @@ def update_filtered_objects(self, context):
             item = filtered_objects.add()
             item.object = obj
 
-class OBJECT_PT_material_properties(bpy.types.Panel):
-    bl_label = 'Converter'
-    bl_idname = 'OBJECT_PT_data_load'
+class OBJECT_PT_scene_section(bpy.types.Panel):
+    bl_label = 'Scene'
+    bl_idname = 'OBJECT_PT_scene_section'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'Converter'
-
+    bl_category = 'CEM'
+    
     def draw(self, context):
         layout = self.layout
 
@@ -130,8 +130,6 @@ class OBJECT_PT_material_properties(bpy.types.Panel):
             layout.operator("scene.create_cubescene", text="Create CubeScene")
         else:
             self.draw_scene_section(context, layout)
-
-        self.draw_simulation_section(context, layout)
 
     def draw_scene_section(self, context, layout):
 
@@ -146,14 +144,37 @@ class OBJECT_PT_material_properties(bpy.types.Panel):
         row.operator("scene.update_list", text="Update List")
         row.operator(OBJECT_OT_stl_to_msh.bl_idname,
                      text="Convert Selected to MSH 2")
-
+        
+class OBJECT_PT_simulation_section(bpy.types.Panel):
+    bl_label = 'Simulation'
+    bl_idname = 'OBJECT_PT_simulation_section'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'CEM'
+    
+    def draw(self, context):
+        layout = self.layout
+        self.draw_simulation_section(context, layout)
+    
     def draw_simulation_section(self, context, layout):
         row = layout.row()
         row.label(text='Simulation', icon='MOD_WAVE')
-
-
-
-
+        
+        
+class OBJECT_PT_visualization_section(bpy.types.Panel):
+    bl_label = 'Visualization'
+    bl_idname = 'OBJECT_PT_visualization_section'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'CEM'
+    
+    def draw(self, context):
+        layout = self.layout
+        self.draw_visualization_section(context, layout)
+    
+    def draw_visualization_section(self, context, layout):
+        row = layout.row()
+        row.label(text='Visualization', icon='MOD_WAVE')
 
 class UpdateListOperator(bpy.types.Operator):
     bl_idname = "scene.update_list"
@@ -538,7 +559,11 @@ def register():
 
     bpy.utils.register_class(FilteredObjectItem)
     bpy.utils.register_class(OBJECT_UL_List)  # list in blender UI +
-    bpy.utils.register_class(OBJECT_PT_material_properties)
+
+    bpy.utils.register_class(OBJECT_PT_scene_section)
+    bpy.utils.register_class(OBJECT_PT_simulation_section)
+    bpy.utils.register_class(OBJECT_PT_visualization_section)
+
     # update list when object is added or removed +
     bpy.utils.register_class(UpdateListOperator)
     bpy.utils.register_class(CreateCubeSceneOperator)
@@ -559,7 +584,11 @@ def unregister():
 
     bpy.utils.unregister_class(FilteredObjectItem)
     bpy.utils.unregister_class(OBJECT_UL_List)
-    bpy.utils.unregister_class(OBJECT_PT_material_properties)
+    
+    bpy.utils.unregister_class(OBJECT_PT_scene_section)
+    bpy.utils.unregister_class(OBJECT_PT_simulation_section)
+    bpy.utils.unregister_class(OBJECT_PT_visualization_section)
+    
     bpy.utils.unregister_class(UpdateListOperator)
     bpy.utils.unregister_class(CreateCubeSceneOperator)
     del bpy.types.Scene.FilteredObjects
