@@ -92,7 +92,45 @@ class OBJECT_OT_stl_to_msh(bpy.types.Operator):
         return {'FINISHED'}
 
 
-###### MAIN UI ######
+
+
+
+
+
+###### SCENE SECTION ######
+
+class OBJECT_PT_scene_section(bpy.types.Panel):
+    bl_label = 'Scene'
+    bl_idname = 'OBJECT_PT_scene_section'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'CEM'
+
+    def draw(self, context):
+        layout = self.layout
+
+        container = bpy.data.objects.get("CubeScene")
+        if not container:
+            print("CubeScene not found.")
+            layout.label(text="CubeScene not found.")
+            layout.operator("scene.create_cubescene", text="Create CubeScene")
+        else:
+            self.draw_scene_section(context, layout)
+
+    def draw_scene_section(self, context, layout):
+
+        row = layout.row()
+        row.label(text='Detected Objects', icon='ALIGN_JUSTIFY')
+
+        col = layout.column()
+        col.template_list("OBJECT_UL_List", "", context.scene,
+                          "FilteredObjects", context.scene, "active_object_index")
+
+        row = layout.row()
+        row.operator("scene.update_list", text="Update List")
+        row.operator(OBJECT_OT_stl_to_msh.bl_idname,
+                     text="Convert Selected to MSH")
+
 
 class OBJECT_UL_List(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
@@ -135,38 +173,38 @@ def update_filtered_objects(self, context):
             item.object = obj
 
 
-class OBJECT_PT_scene_section(bpy.types.Panel):
-    bl_label = 'Scene'
-    bl_idname = 'OBJECT_PT_scene_section'
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = 'CEM'
+class UpdateListOperator(bpy.types.Operator):
+    bl_idname = "scene.update_list"
+    bl_label = "Update List Operator"
+
+    def execute(self, context):
+        update_filtered_objects(self=None, context=context)
+        return {'FINISHED'}
+
+
+class CreateCubeSceneOperator(bpy.types.Operator):
+    bl_idname = "scene.create_cubescene"
+    bl_label = "Create CubeScene Operator"
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
 
     def draw(self, context):
         layout = self.layout
+        layout.label(text="Create a CubeScene object?")
 
-        container = bpy.data.objects.get("CubeScene")
-        if not container:
-            print("CubeScene not found.")
-            layout.label(text="CubeScene not found.")
-            layout.operator("scene.create_cubescene", text="Create CubeScene")
-        else:
-            self.draw_scene_section(context, layout)
+    def execute(self, context):
+        bpy.ops.mesh.primitive_cube_add()
+        cube = context.active_object
+        cube.name = "CubeScene"
+        cube.display_type = 'WIRE'
+        return {'FINISHED'}
 
-    def draw_scene_section(self, context, layout):
 
-        row = layout.row()
-        row.label(text='Detected Objects', icon='ALIGN_JUSTIFY')
 
-        col = layout.column()
-        col.template_list("OBJECT_UL_List", "", context.scene,
-                          "FilteredObjects", context.scene, "active_object_index")
 
-        row = layout.row()
-        row.operator("scene.update_list", text="Update List")
-        row.operator(OBJECT_OT_stl_to_msh.bl_idname,
-                     text="Convert Selected to MSH 2")
 
+###### SIMULATION SECTION ######
 
 class OBJECT_PT_simulation_section(bpy.types.Panel):
     bl_label = 'Simulation'
@@ -184,6 +222,12 @@ class OBJECT_PT_simulation_section(bpy.types.Panel):
         row.label(text='Simulation', icon='MOD_WAVE')
 
 
+
+
+
+
+###### VISUALIZATION SECTION ######
+
 class OBJECT_PT_visualization_section(bpy.types.Panel):
     bl_label = 'Visualization'
     bl_idname = 'OBJECT_PT_visualization_section'
@@ -199,6 +243,12 @@ class OBJECT_PT_visualization_section(bpy.types.Panel):
         row = layout.row()
         row.label(text='Visualization', icon='MOD_WAVE')
 
+
+
+
+
+
+###### PARAMETERS SECTION ######
 
 class OBJECT_PT_parameters_section(bpy.types.Panel):
     bl_label = 'Global settings'
@@ -243,39 +293,11 @@ class GlobalSettings(PropertyGroup):
     )
 
 
-class UpdateListOperator(bpy.types.Operator):
-    bl_idname = "scene.update_list"
-    bl_label = "Update List Operator"
-
-    def execute(self, context):
-        update_filtered_objects(self=None, context=context)
-        return {'FINISHED'}
 
 
-class CreateCubeSceneOperator(bpy.types.Operator):
-    bl_idname = "scene.create_cubescene"
-    bl_label = "Create CubeScene Operator"
-
-    def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self)
-
-    def draw(self, context):
-        layout = self.layout
-        layout.label(text="Create a CubeScene object?")
-
-    def execute(self, context):
-        bpy.ops.mesh.primitive_cube_add()
-        cube = context.active_object
-        cube.name = "CubeScene"
-        cube.display_type = 'WIRE'
-        return {'FINISHED'}
 
 
-def menu_func(self, context):
-    self.layout.operator(OBJECT_OT_stl_to_msh.bl_idname)
-
-
-###### Converters ######
+###### CONVERTERS ######
 
 def export_stl(context, filepath):
     # Store the current selection
@@ -437,6 +459,10 @@ def stl_to_msh(blender_dir, stl_file, obj_file):
     v.export_obj(obj_file=obj_file)
 
 
+
+
+
+
 ###### PIP ######
 
 PYPATH = sys.executable
@@ -568,6 +594,11 @@ class Pip:
         # version.major, version.minor, version.micro
         return sys.version_info
 
+
+
+
+
+
 ###### Dependencies ######
 
 
@@ -638,8 +669,6 @@ def register():
         bpy.utils.register_class(cls)
 
     # update list when object is added or removed +
-    bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
-
     bpy.types.Object.material_properties = bpy.props.PointerProperty(
         type=MaterialProperties)
     bpy.types.Scene.FilteredObjects = bpy.props.CollectionProperty(
@@ -654,11 +683,17 @@ def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
-    bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
     del bpy.types.Object.material_properties
     del bpy.types.Scene.FilteredObjects
     del bpy.types.Scene.active_object_index
     del bpy.types.Scene.settings
+
+
+
+
+
+
+
 ######## Abstract_plot ##########
 
 
