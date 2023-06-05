@@ -9,9 +9,14 @@ import trimesh
 import seaborn as sns
 import matplotlib.pyplot as plt
 import bpy
-from bpy.types import Panel, Operator, UIList
+from bpy.types import Panel, Operator, UIList, PropertyGroup
 import os
 from mathutils import Vector
+from bpy.props import (IntProperty,
+                       PointerProperty,
+                       FloatProperty
+                       )
+VOXELS_DIR = "export/voxels"
 
 bl_info = {
     "name": "STL to MSH Converter",
@@ -52,22 +57,36 @@ class OBJECT_OT_stl_to_msh(bpy.types.Operator):
         blend_directory = bpy.path.abspath("//")
 
         if not os.path.exists(blend_directory):
-            self.report({'ERROR'}, "Blend file not saved, Please open an existing blend file or save the current blend file")
+            self.report(
+                {'ERROR'}, "Blend file not saved, Please open an existing blend file or save the current blend file")
             return {'FINISHED'}
 
-            # blend_directory = os.path.expanduser("~")
-        stl_file = os.path.join(blend_directory, "export", "object.stl")
-        obj_file = os.path.join(blend_directory, "export", "object.obj")
-        if not os.path.exists(os.path.join(blend_directory, "export")):
-            os.makedirs(os.path.join(blend_directory, "export"))
-        # Export the selected objects to an STL file
-        export_stl(context, stl_file)
+        if not os.path.exists(os.path.join(blend_directory, VOXELS_DIR)):
+            os.makedirs(os.path.join(blend_directory, VOXELS_DIR))
 
-        # Convert the STL file to a .msh file using Gmsh
-        stl_to_msh(blend_directory, stl_file, obj_file)
+        filtered_objects = context.scene.FilteredObjects
+        self.report({'INFO'}, "Conversion to OBJ started")
+        for obj in filtered_objects:
+            bpy.data.objects[obj.object.name].select_set(True)
+            bpy.context.view_layer.objects.active = obj.object
+            obj.object["CustomProperty"] = {}
+            obj.object["CustomProperty"]["Sigma"] = obj.object.material_properties.sigma
+            obj.object["CustomProperty"]["mu"] = obj.object.material_properties.mu
+            obj.object["CustomProperty"]["epsilon"] = obj.object.material_properties.epsilon
+
+            self.report({'INFO'}, f"{obj.object}")
+            stl_file = os.path.join(
+                blend_directory, VOXELS_DIR, f"{obj.object.name}.stl")
+            obj_file = os.path.join(
+                blend_directory, VOXELS_DIR, f"{obj.object.name}.obj")
+            self.report({'INFO'}, f"{stl_file}")
+            self.report({'INFO'}, f"{obj_file}")
+            bpy.ops.export_mesh.stl(filepath=stl_file, use_selection=True)
+            stl_to_msh(blend_directory, stl_file, obj_file)
+            bpy.data.objects[obj.object.name].select_set(False)
 
         # Add material properties to the objects
-        add_material_properties()
+        # add_material_properties()
 
         self.report({'INFO'}, "Conversion to OBJ completed")
         return {'FINISHED'}
@@ -79,8 +98,10 @@ class OBJECT_UL_List(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         layout.label(text=item.object.name, icon='OBJECT_DATA')
 
+
 class FilteredObjectItem(bpy.types.PropertyGroup):
     object: bpy.props.PointerProperty(type=bpy.types.Object)
+
 
 def is_inside_cube(obj, cube):
     cube_bounds = [cube.matrix_world @
@@ -113,13 +134,14 @@ def update_filtered_objects(self, context):
             item = filtered_objects.add()
             item.object = obj
 
+
 class OBJECT_PT_scene_section(bpy.types.Panel):
     bl_label = 'Scene'
     bl_idname = 'OBJECT_PT_scene_section'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = 'CEM'
-    
+
     def draw(self, context):
         layout = self.layout
 
@@ -144,37 +166,82 @@ class OBJECT_PT_scene_section(bpy.types.Panel):
         row.operator("scene.update_list", text="Update List")
         row.operator(OBJECT_OT_stl_to_msh.bl_idname,
                      text="Convert Selected to MSH 2")
-        
+
+
 class OBJECT_PT_simulation_section(bpy.types.Panel):
     bl_label = 'Simulation'
     bl_idname = 'OBJECT_PT_simulation_section'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = 'CEM'
-    
+
     def draw(self, context):
         layout = self.layout
         self.draw_simulation_section(context, layout)
-    
+
     def draw_simulation_section(self, context, layout):
         row = layout.row()
         row.label(text='Simulation', icon='MOD_WAVE')
-        
-        
+
+
 class OBJECT_PT_visualization_section(bpy.types.Panel):
     bl_label = 'Visualization'
     bl_idname = 'OBJECT_PT_visualization_section'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = 'CEM'
-    
+
     def draw(self, context):
         layout = self.layout
         self.draw_visualization_section(context, layout)
-    
+
     def draw_visualization_section(self, context, layout):
         row = layout.row()
         row.label(text='Visualization', icon='MOD_WAVE')
+
+
+class OBJECT_PT_parameters_section(bpy.types.Panel):
+    bl_label = 'Global settings'
+    bl_idname = 'OBJECT_PT_parameters_section'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'CEM'
+
+    @classmethod
+    def poll(self, context):
+        return context.object is not None
+
+    def draw(self, context):
+        layout = self.layout
+        self.draw_parameters_section(context, layout)
+
+    def draw_parameters_section(self, context, layout):
+        row = layout.row()
+        row.label(text='Global settings', icon='MOD_WAVE')
+
+        scene = context.scene
+        global_settings = scene.settings
+
+        layout.prop(global_settings, "mesh_size")
+        layout.prop(global_settings, "frequence")
+        layout.separator()
+
+
+class GlobalSettings(PropertyGroup):
+
+    mesh_size: FloatProperty(
+        name="Mesh size",
+        description="Size of the mesh for the voxelization",
+        default=.01,
+        min=0.001,
+        max=1
+    )
+
+    frequence: IntProperty(
+        name="Frequence",
+        description="Frequence"
+    )
+
 
 class UpdateListOperator(bpy.types.Operator):
     bl_idname = "scene.update_list"
@@ -203,6 +270,7 @@ class CreateCubeSceneOperator(bpy.types.Operator):
         cube.display_type = 'WIRE'
         return {'FINISHED'}
 
+
 def menu_func(self, context):
     self.layout.operator(OBJECT_OT_stl_to_msh.bl_idname)
 
@@ -213,7 +281,7 @@ def export_stl(context, filepath):
     # Store the current selection
     current_selected_objects = context.selected_objects
 
-    # Deselect all objectsouf juste à temps ;)
+    # Deselect all objects
 
     bpy.ops.object.select_all(action='DESELECT')
 
@@ -294,7 +362,8 @@ class Voxelizer:
         self.voxel_size = voxel_size
         self.blender_dir = blender_dir
         self.mtl_name = mtl_name
-        self.mtl_file = os.path.join(self.blender_dir, "materials", mtl_name + ".mtl")
+        self.mtl_file = os.path.join(
+            self.blender_dir, "materials", mtl_name + ".mtl")
 
     def export_obj(self, obj_file="export.obj"):
         """
@@ -352,6 +421,7 @@ class Voxelizer:
         self._save_mtl(custom_material)
         self._save_obj(boxes, obj_file)
 
+
 def stl_to_msh(blender_dir, stl_file, obj_file):
     """
     Converts a stl file to a msh file.
@@ -367,9 +437,7 @@ def stl_to_msh(blender_dir, stl_file, obj_file):
     v.export_obj(obj_file=obj_file)
 
 
-
 ###### PIP ######
-
 
 PYPATH = sys.executable
 
@@ -503,7 +571,6 @@ class Pip:
 ###### Dependencies ######
 
 
-
 DEPENDENCIES = ['seaborn', 'trimesh', 'matplotlib']
 
 
@@ -547,53 +614,51 @@ class DependenciesInstaller(bpy.types.Operator):
 
 ###### Register ######
 
+
+classes = [
+    DependenciesPreferences,
+    DependenciesInstaller,
+    MaterialProperties,
+    OBJECT_OT_stl_to_msh,
+    OBJECT_PT_parameters_section,
+    OBJECT_PT_scene_section,
+    OBJECT_PT_simulation_section,
+    OBJECT_PT_visualization_section,
+    OBJECT_UL_List,
+    FilteredObjectItem,
+    UpdateListOperator,
+    CreateCubeSceneOperator,
+    GlobalSettings
+]
+
+
 def register():
     print("Registering...")
-    bpy.utils.register_class(DependenciesPreferences)
-    bpy.utils.register_class(DependenciesInstaller)
-    bpy.utils.register_class(MaterialProperties)
-    bpy.utils.register_class(OBJECT_OT_stl_to_msh)
-    bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
-    bpy.types.Object.material_properties = bpy.props.PointerProperty(
-        type=MaterialProperties)
-
-    bpy.utils.register_class(FilteredObjectItem)
-    bpy.utils.register_class(OBJECT_UL_List)  # list in blender UI +
-
-    bpy.utils.register_class(OBJECT_PT_scene_section)
-    bpy.utils.register_class(OBJECT_PT_simulation_section)
-    bpy.utils.register_class(OBJECT_PT_visualization_section)
+    for cls in classes:
+        bpy.utils.register_class(cls)
 
     # update list when object is added or removed +
-    bpy.utils.register_class(UpdateListOperator)
-    bpy.utils.register_class(CreateCubeSceneOperator)
+    bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
+
+    bpy.types.Object.material_properties = bpy.props.PointerProperty(
+        type=MaterialProperties)
     bpy.types.Scene.FilteredObjects = bpy.props.CollectionProperty(
         type=FilteredObjectItem)  # type of list item +
     bpy.types.Scene.active_object_index = bpy.props.IntProperty(
         update=update_filtered_objects)  # index of active item in list +
+    bpy.types.Scene.settings = PointerProperty(type=GlobalSettings)
 
 
 def unregister():
-    bpy.utils.unregister_class(DependenciesPreferences)
-    bpy.utils.unregister_class(DependenciesInstaller)
-    bpy.utils.unregister_class(MaterialProperties)
-    bpy.utils.unregister_class(OBJECT_OT_stl_to_msh)
+    print("Unregistering...")
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
+
     bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
     del bpy.types.Object.material_properties
-
-
-    bpy.utils.unregister_class(FilteredObjectItem)
-    bpy.utils.unregister_class(OBJECT_UL_List)
-    
-    bpy.utils.unregister_class(OBJECT_PT_scene_section)
-    bpy.utils.unregister_class(OBJECT_PT_simulation_section)
-    bpy.utils.unregister_class(OBJECT_PT_visualization_section)
-    
-    bpy.utils.unregister_class(UpdateListOperator)
-    bpy.utils.unregister_class(CreateCubeSceneOperator)
     del bpy.types.Scene.FilteredObjects
     del bpy.types.Scene.active_object_index
-
+    del bpy.types.Scene.settings
 ######## Abstract_plot ##########
 
 
