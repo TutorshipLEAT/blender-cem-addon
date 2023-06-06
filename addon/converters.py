@@ -23,29 +23,30 @@ class OBJECT_OT_stl_to_msh(bpy.types.Operator):
             os.makedirs(os.path.join(blend_directory, VOXELS_DIR))
 
         filtered_objects = context.scene.FilteredObjects
+        global_settings = context.scene.settings
         self.report({'INFO'}, "Conversion to OBJ started")
         for obj in filtered_objects:
-            bpy.data.objects[obj.object.name].select_set(True)
-            bpy.context.view_layer.objects.active = obj.object
-            obj.object["CustomProperty"] = {}
-            obj.object["CustomProperty"]["Sigma"] = obj.object.material_properties.sigma
-            obj.object["CustomProperty"]["mu"] = obj.object.material_properties.mu
-            obj.object["CustomProperty"]["epsilon"] = obj.object.material_properties.epsilon
-
-            self.report({'INFO'}, f"{obj.object}")
+            current_object = obj.object
+            current_object.select_set(True)
+            bpy.context.view_layer.objects.active = current_object
+            custom_properties = {}
+            if current_object.type == 'MESH':
+                if len(current_object.keys()) > 2:
+                    # First item is _RNA_UI
+                    for property in list(current_object.keys())[1:]:
+                        if property not in '_RNA_UI':
+                            custom_properties[property] = current_object[property]
+            self.report({'INFO'}, f"{current_object}")
             stl_file = os.path.join(
-                blend_directory, VOXELS_DIR, f"{obj.object.name}.stl")
+                blend_directory, VOXELS_DIR, f"{current_object.name}.stl")
             obj_file = os.path.join(
-                blend_directory, VOXELS_DIR, f"{obj.object.name}.obj")
+                blend_directory, VOXELS_DIR, f"{current_object.name}.obj")
             self.report({'INFO'}, f"{stl_file}")
             self.report({'INFO'}, f"{obj_file}")
             bpy.ops.export_mesh.stl(filepath=stl_file, use_selection=True)
-            stl_to_msh(blend_directory, stl_file, obj_file)
-            bpy.data.objects[obj.object.name].select_set(False)
-
-        # Add material properties to the objects
-        # add_material_properties()
-
+            stl_to_msh(global_settings.mesh_size, blend_directory, stl_file, obj_file,
+                       CustomMaterial(**custom_properties))
+            current_object.select_set(False)
         self.report({'INFO'}, "Conversion to OBJ completed")
         return {'FINISHED'}
 
@@ -138,12 +139,12 @@ class Voxelizer:
         self.mtl_file = os.path.join(
             self.blender_dir, "materials", mtl_name + ".mtl")
 
-    def export_obj(self, obj_file="export.obj"):
+    def export_obj(self, obj_file="export.obj", custom_material: CustomMaterial = None):
         """
         Exports the voxelized stl file as an obj file.
         """
         boxes = self._voxelize()
-        self._save(boxes, obj_file)
+        self._save(boxes, obj_file, custom_material)
 
     def _voxelize(self):
         """
@@ -171,7 +172,7 @@ class Voxelizer:
         """
         with open(obj_file, "w+") as f:
             f.write(trimesh.exchange.obj.export_obj(
-                boxes, mtl_name=self.mtl_file))
+                boxes, mtl_name=os.path.abspath(self.mtl_file)))
 
     def _save_mtl(self, custom_material: None | CustomMaterial = None):
         """
@@ -195,7 +196,7 @@ class Voxelizer:
         self._save_obj(boxes, obj_file)
 
 
-def stl_to_msh(blender_dir, stl_file, obj_file):
+def stl_to_msh(mesh_size, blender_dir, stl_file, obj_file, custom_material: CustomMaterial = None):
     """
     Converts a stl file to a msh file.
 
@@ -206,5 +207,6 @@ def stl_to_msh(blender_dir, stl_file, obj_file):
     msh_file : str
         Path to the msh file.
     """
-    v = Voxelizer(stl_file, stl_file.split(".stl")[0], blender_dir)
-    v.export_obj(obj_file=obj_file)
+    v = Voxelizer(stl_file, stl_file.split(".stl")[
+                  0], blender_dir, voxel_size=mesh_size)
+    v.export_obj(obj_file=obj_file, custom_material=custom_material)
