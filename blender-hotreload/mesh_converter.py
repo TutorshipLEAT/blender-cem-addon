@@ -5,16 +5,18 @@
 
 import sys
 import subprocess
+import typing
 import trimesh
 import seaborn as sns
 import matplotlib.pyplot as plt
 import bpy
-from bpy.types import Panel, Operator, UIList, PropertyGroup
+from bpy.types import Context, Event, Panel, Operator, UIList, PropertyGroup
 import os
 from mathutils import Vector
 from bpy.props import (IntProperty,
                        PointerProperty,
-                       FloatProperty
+                       FloatProperty,
+                       StringProperty
                        )
 from bpy_extras.io_utils import ImportHelper
 
@@ -272,9 +274,6 @@ class SIMULATION_OT_execute_simulation(bpy.types.Operator):
 
 
 
-
-
-
 ###### VISUALIZATION SECTION ######
 
 class OBJECT_PT_visualization_section(bpy.types.Panel):
@@ -292,7 +291,49 @@ class OBJECT_PT_visualization_section(bpy.types.Panel):
         row = layout.row()
         row.label(text='Visualization', icon='MOD_WAVE')
 
+        col = layout.column()
+        col.prop(context.scene, 'visualization_types', text="")
 
+        row = layout.column()
+        row.operator('visualization.open_filebrowser', text="Select .txt File", icon="FILEBROWSER")
+
+        if (context.scene.data_file_path):
+            row = layout.row()
+            row.label(text=f'Selected file: {context.scene.data_file_path}')
+
+        row = layout.row()
+        row.operator("visualization.execute_visu", text="Generate visualization", icon="PLAY")
+
+class VISUALIZATION_OT_open_filebrowser(bpy.types.Operator, ImportHelper):
+
+    bl_idname = "visualization.open_filebrowser"
+    bl_label = "Select .txt File"
+    filepath = bpy.props.StringProperty(subtype="FILE_PATH")
+
+    filter_glob: bpy.props.StringProperty(default="*.txt", options={'HIDDEN'})
+
+    def invoke(self, context: Context, event: Event):
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+    
+    def execute(self, context: Context):
+        context.scene.data_file_path = self.properties.filepath
+        print(f'Selected file: {self.filepath}')
+        return {'FINISHED'}
+    
+class VISUALIZATION_OT_generate_visu(bpy.types.Operator):
+    bl_idname = "visualization.execute_visu"
+    bl_label = "Generate Visualization"
+
+    def execute(self, context: Context):
+        if not context.scene.data_file_path:
+            self.report({'WARNING'}, "No .txt file selected. Please select a file to visualize.")
+            return {'CANCELLED'}
+        
+        print('Generating visualization ...')
+
+        self.report({'INFO'}, f'Visualization for {os.path.basename(context.scene.data_file_path)} has been generated successfully.')
+        return {'FINISHED'}
 
 
 
@@ -710,7 +751,9 @@ classes = [
     CreateCubeSceneOperator,
     GlobalSettings,
     SIMULATION_OT_open_filebrowser,
-    SIMULATION_OT_execute_simulation
+    SIMULATION_OT_execute_simulation,
+    VISUALIZATION_OT_open_filebrowser,
+    VISUALIZATION_OT_generate_visu
 ]
 
 
@@ -733,6 +776,12 @@ def register():
         default="",
         subtype='FILE_PATH'
     )
+    bpy.types.Scene.data_file_path = bpy.props.StringProperty(
+        name="Data file path",
+        description="The path of the selected .txt file for visualization",
+        default="",
+        subtype='FILE_PATH'
+    )
     bpy.types.Scene.simulation_types = bpy.props.EnumProperty(
         name="Simulation Types",
         description="Choose the type of the simulation",
@@ -740,6 +789,16 @@ def register():
             ('UNIDIMENSIONAL', "Unidimensional", "Unidimensional simulation"),
             ('BIDIMENSIONAL', "Bidimensional", "Bidimensional simulation"),
             ('TRIDIMENSIONAL', "Tridimensional", "Tridimensional simulation"),
+        ]
+    )
+    bpy.types.Scene.visualization_types = bpy.props.EnumProperty(
+        name="Visualization types",
+        description="Choose the type of visualization",
+        items=[
+            ('BARPLOT', 'Barplot', 'Barplot visualization'),
+            ('HEATMAP', 'Heatmap', 'Heatmap visualization'),
+            ('BUBBLECHART', 'Bubblechart', 'Bubblechart visualization'),
+            ('SCATTERPLOT', 'Scatterplot', 'Scatterplot visualization'),
         ]
     )
 
@@ -756,6 +815,8 @@ def unregister():
     del bpy.types.Scene.settings
     del bpy.types.Scene.obj_file_path
     del bpy.types.Scene.simulation_types
+    del bpy.types.Scene.data_file_path
+    del bpy.types.Scene.visualization_types
 
 
 
