@@ -1,4 +1,6 @@
-from matplotlib import pyplot as plt
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 
 Labels = list[str]
 Ticks = list[int]
@@ -34,3 +36,31 @@ class AbstractPlot:
 
     def save_to_png(self, path: str) -> None:
         plt.savefig(f'{path}.png')
+
+######## pie_chart ##########
+
+
+Wedges = list[int]
+Labels = list[str]
+
+
+class PieChart(AbstractPlot):
+
+    def create_pie(self, wedges: Wedges, labels: Labels, autopct: str, colors=None):
+        plt.pie(x=wedges, labels=labels, colors=colors, autopct=autopct)
+
+######## bar_chart ##########
+
+
+class BarChart(AbstractPlot):
+
+    def create_bar(self, bar_position: int, data: list, width: float, bottom=0, align='center', color=None):
+        plt.bar(bar_position, data, color=color,
+                width=width, bottom=bottom, align=align)
+
+
+class HeatMap(AbstractPlot):
+
+    def create_heatmap(self, data, annot=False, fmt=".1f", cmap=None, vmin=None, vmax=None, linewidth=.0, linecolor="white"):
+        sns.heatmap(data=data, annot=annot, fmt=fmt,
+                    cmap=cmap, vmin=vmin, vmax=vmax, linewidth=linewidth, linecolor=linecolor)

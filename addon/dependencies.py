@@ -1,6 +1,8 @@
 import bpy
 
-DEPENDENCIES = ['gmsh', 'matplotlib']
+from . pip_utils import Pip
+
+DEPENDENCIES = ['seaborn', 'trimesh', 'matplotlib']
 
 
 class DependenciesPreferences(bpy.types.AddonPreferences):
@@ -9,7 +11,7 @@ class DependenciesPreferences(bpy.types.AddonPreferences):
     def draw(self, context):
 
         import importlib
-        from src.pip_utils import Pip
+        # from src.pip_utils import Pip
         Pip._ensure_user_site_package()
 
         layout = self.layout
@@ -30,8 +32,8 @@ class DependenciesInstaller(bpy.types.Operator):
 
     def execute(self, context):
         try:
-            print("Installing dependencies...")
-            from src.pip_utils import Pip
+            self.report({"INFO"}, "Installing dependencies...")
+            # from src.pip_utils import Pip
             Pip.upgrade_pip()
             for dep in DEPENDENCIES:
                 Pip.install(dep)

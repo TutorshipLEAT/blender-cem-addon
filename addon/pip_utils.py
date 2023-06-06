@@ -1,7 +1,6 @@
-import bpy
-import subprocess
 import sys
-
+import subprocess
+import bpy
 
 PYPATH = sys.executable
 
@@ -68,7 +67,6 @@ class Pip:
                 status = line.strip()
             if "Error:" in line:
                 status = line.strip()
-            print(line)
             if "Successfully" in line:
                 status = line.strip()
                 res = True
