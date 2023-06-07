@@ -39,7 +39,7 @@ class GlobalSettings(PropertyGroup):
     mesh_size: FloatProperty(
         name="Mesh size",
         description="Size of the mesh for the voxelization",
-        default=.01,
+        default=.1,
         min=0.001,
         max=1
     )

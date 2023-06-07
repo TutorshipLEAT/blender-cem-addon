@@ -1,8 +1,7 @@
 import trimesh
 import bpy
 import os
-
-VOXELS_DIR = "export/voxels"
+from .constants import VOXELS_DIR
 
 
 class OBJECT_OT_stl_to_msh(bpy.types.Operator):

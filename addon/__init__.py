@@ -23,7 +23,6 @@ from bpy.props import (
 
 from . converters import OBJECT_OT_stl_to_msh
 from . dependencies import DependenciesInstaller, DependenciesPreferences
-from . properties import MaterialProperties
 from . scene_opt import CreateCubeSceneOperator, FilteredObjectItem, OBJECT_PT_scene_section, OBJECT_UL_List, UpdateListOperator, update_filtered_objects
 from . settings_opt import GlobalSettings, OBJECT_PT_parameters_section
 from . simulation_opt import OBJECT_PT_simulation_section, SIMULATION_OT_execute_simulation, SIMULATION_OT_open_filebrowser
@@ -46,7 +45,6 @@ bl_info = {
 classes = (
     DependenciesPreferences,
     DependenciesInstaller,
-    MaterialProperties,
     OBJECT_OT_stl_to_msh,
     OBJECT_PT_parameters_section,
     OBJECT_PT_scene_section,
@@ -68,8 +66,6 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.Object.material_properties = PointerProperty(
-        type=MaterialProperties)
     bpy.types.Scene.FilteredObjects = CollectionProperty(
         type=FilteredObjectItem)  # type of list item +
     bpy.types.Scene.active_object_index = IntProperty(

@@ -3,6 +3,8 @@ import os
 
 from bpy.types import Context, Event
 from bpy_extras.io_utils import ImportHelper
+from .plot import *
+from .constants import VISUALISATIONS_DIR
 
 
 class OBJECT_PT_visualization_section(bpy.types.Panel):
@@ -64,7 +66,39 @@ class VISUALIZATION_OT_generate_visu(bpy.types.Operator):
                 {'WARNING'}, "No .txt file selected. Please select a file to visualize.")
             return {'CANCELLED'}
 
-        print('Generating visualization ...')
+        root_dir = bpy.path.abspath("//")
+        visusaliation_path = os.path.join(root_dir, VISUALISATIONS_DIR)
+        image_path = os.path.join(
+            visusaliation_path, context.scene.visualization_types + '.png')
+
+        if not os.path.exists(visusaliation_path):
+            os.makedirs(visusaliation_path)
+            self.report({'INFO'}, f'Created {VISUALISATIONS_DIR} directory')
+        self.report({'INFO'}, 'Generating visualization ...')
+        if context.scene.visualization_types == 'BARPLOT':
+            plot = BarPlot()
+            plot.create_bar(1, [1, 2, 3], 0.5)
+        elif context.scene.visualization_types == 'HEATMAP':
+            plot = HeatMap()
+            plot.create_heatmap([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+            print(image_path)
+            plot.save_to_png(image_path)
+
+        elif context.scene.visualization_types == 'BUBBLECHART':
+            print('Bubblechart')
+        elif context.scene.visualization_types == 'SCATTERPLOT':
+            print('Scatterplot')
+
+        image = bpy.data.images.load(image_path, check_existing=False)
+
+        # Call user prefs window
+        bpy.ops.screen.userpref_show('INVOKE_DEFAULT')
+        # Change area type
+        area = bpy.context.window_manager.windows[-1].screen.areas[0]
+        area.type = 'IMAGE_EDITOR'
+
+        # Assign the image
+        bpy.context.area.spaces.active.image = image
 
         self.report(
             {'INFO'}, f'Visualization for {os.path.basename(context.scene.data_file_path)} has been generated successfully.')
