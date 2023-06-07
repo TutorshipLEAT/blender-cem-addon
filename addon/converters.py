@@ -24,6 +24,7 @@ class OBJECT_OT_stl_to_msh(bpy.types.Operator):
 
         filtered_objects = context.scene.FilteredObjects
         global_settings = context.scene.settings
+        bpy.ops.object.select_all(action='DESELECT')
         self.report({'INFO'}, "Conversion to OBJ started")
         for obj in filtered_objects:
             current_object = obj.object
