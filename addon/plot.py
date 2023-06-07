@@ -49,6 +49,7 @@ Labels = list[str]
 class PieChart(AbstractPlot):
 
     def create_pie(self, wedges: Wedges, labels: Labels, autopct: str, colors=None):
+        plt.clf()
         plt.pie(x=wedges, labels=labels, colors=colors, autopct=autopct)
 
 ######## bar_chart ##########
@@ -57,13 +58,16 @@ class PieChart(AbstractPlot):
 class BarPlot(AbstractPlot):
 
     def create_bar(self, bar_position: int, data: list, width: float, bottom=0, align='center', color=None):
+        plt.clf()
         plt.bar(bar_position, data, color=color,
                 width=width, bottom=bottom, align=align)
+        
 
 
 class HeatMap(AbstractPlot):
 
     def create_heatmap(self, data, annot=False, fmt=".1f", cmap=None, vmin=None, vmax=None, linewidth=.0, linecolor="white"):
+        plt.clf()
         sns.heatmap(data=data, annot=annot, fmt=fmt,
                     cmap=cmap, vmin=vmin, vmax=vmax, linewidth=linewidth, linecolor=linecolor)
         plt.legend(numpoints=1)
