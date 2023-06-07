@@ -30,7 +30,7 @@ class OBJECT_PT_parameters_section(bpy.types.Panel):
         global_settings = scene.settings
 
         layout.prop(global_settings, "mesh_size")
-        layout.prop(global_settings, "frequence")
+        layout.prop(global_settings, "frequency")
         layout.separator()
 
 
@@ -44,7 +44,8 @@ class GlobalSettings(PropertyGroup):
         max=1
     )
 
-    frequence: IntProperty(
-        name="Frequence",
-        description="Frequence"
+    frequency: IntProperty(
+        name="Frequency",
+        description="Frequency",
+        default=1
     )
