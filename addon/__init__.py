@@ -108,7 +108,6 @@ def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
-    del bpy.types.Object.material_properties
     del bpy.types.Scene.FilteredObjects
     del bpy.types.Scene.active_object_index
     del bpy.types.Scene.settings
