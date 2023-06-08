@@ -99,7 +99,6 @@ class VISUALIZATION_OT_generate_visu(bpy.types.Operator):
             plot.create_bubble(df["x"], df["y"])
             plot.save_to_png(image_path)
 
-
         image = bpy.data.images.load(image_path, check_existing=False)
 
         # Call user prefs window
