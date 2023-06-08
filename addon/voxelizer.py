@@ -88,14 +88,6 @@ class Voxelizer:
         """
         mesh = trimesh.load(self.stl_file)
         voxelgrid = mesh.voxelized(self.voxel_size)
-        arr = np.array(voxelgrid.matrix)
-
-        # saving reshaped array to file.
-        voxelarray = f"{self.stl_file}.voxelarray"
-        with open('test.txt', 'w') as outfile:
-            for slice_2d in arr:
-                np.savetxt(outfile, slice_2d)
-        # print(np.array(voxelgrid.matrix))
         return voxelgrid.as_boxes()
 
     def _save_obj(self, boxes, obj_file="export.obj"):

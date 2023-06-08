@@ -2,7 +2,6 @@ import bpy
 
 from . pip_utils import Pip
 
-DEPENDENCIES = ['seaborn', 'trimesh', 'matplotlib', 'pandas']
 
 
 class DependenciesPreferences(bpy.types.AddonPreferences):
