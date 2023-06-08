@@ -104,7 +104,7 @@ class Pip:
         return pip.main(["uninstall", module, options])
 
     @staticmethod
-    def install(module, options=None):
+    def install(*modules, options=None):
         """
         :param module: string module name with requirements see:[1]
         :param options: string command line options  see:[2]
@@ -113,8 +113,7 @@ class Pip:
         [2] https://pip.pypa.io/en/stable/reference/pip_install/#id47
         """
         import pip
-        pip
-        return pip.main(["install", module])
+        return pip.main(["install", *modules])
 
     @staticmethod
     def blender_version():

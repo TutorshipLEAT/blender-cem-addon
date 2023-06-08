@@ -40,9 +40,9 @@ def run_simulation(dimension, context, path, save_path):
     if dimension == 1:
         header = 'x'
     elif dimension == 2:
-        header = 'x y'
+        header = 'x,y'
     elif dimension == 3:
-        header = 'x y z'
+        header = 'x,y,z'
 
     filename = os.path.basename(path)
     vertices = parse_file(path)

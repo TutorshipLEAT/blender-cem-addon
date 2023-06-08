@@ -69,3 +69,14 @@ class HeatMap(AbstractPlot):
     def create_heatmap(self, data, annot=False, fmt=".1f", cmap=None, vmin=None, vmax=None, linewidth=.0, linecolor="white"):
         sns.heatmap(data=data, annot=annot, fmt=fmt,
                     cmap=cmap, vmin=vmin, vmax=vmax, linewidth=linewidth, linecolor=linecolor)
+
+
+class ScatterPlot(AbstractPlot):
+
+        def create_scatter(self, x, y, z, s=30, c=None, marker='o', cmap=None, norm=None, vmin=None, vmax=None, alpha=None, linewidths=None, verts=None, edgecolors=None, *, plotnonfinite=False, data=None, **kwargs):
+            fig = plt.figure()
+            ax = fig.add_subplot(projection='3d')
+            ax.scatter3D(x, y, z, color = "green")
+            ax.set_xlabel('X Label')
+            ax.set_ylabel('Y Label')
+            ax.set_zlabel('Z Label')

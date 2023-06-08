@@ -2,7 +2,7 @@ import bpy
 
 from . pip_utils import Pip
 
-DEPENDENCIES = ['seaborn', 'trimesh', 'matplotlib']
+DEPENDENCIES = ['seaborn', 'trimesh', 'matplotlib', 'pandas']
 
 
 class DependenciesPreferences(bpy.types.AddonPreferences):
@@ -35,8 +35,7 @@ class DependenciesInstaller(bpy.types.Operator):
             self.report({"INFO"}, "Installing dependencies...")
             # from src.pip_utils import Pip
             Pip.upgrade_pip()
-            for dep in DEPENDENCIES:
-                Pip.install(dep)
+            Pip.install(*DEPENDENCIES)
 
             self.report({'INFO'}, 'Dependencies successfully installed.')
         except ModuleNotFoundError:

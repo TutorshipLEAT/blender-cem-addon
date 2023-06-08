@@ -5,7 +5,7 @@ from bpy.types import Context, Event
 from bpy_extras.io_utils import ImportHelper
 from .plot import *
 from .constants import VISUALISATIONS_DIR
-
+from .visualisations import *
 
 class OBJECT_PT_visualization_section(bpy.types.Panel):
     bl_label = 'Visualization'
@@ -44,7 +44,7 @@ class VISUALIZATION_OT_open_filebrowser(bpy.types.Operator, ImportHelper):
     bl_label = "Select .txt File"
     filepath = bpy.props.StringProperty(subtype="FILE_PATH")
 
-    filter_glob: bpy.props.StringProperty(default="*.txt", options={'HIDDEN'})
+    filter_glob: bpy.props.StringProperty(default="*.txt;*.csv", options={'HIDDEN'})
 
     def invoke(self, context: Context, event: Event):
         context.window_manager.fileselect_add(self)
@@ -80,14 +80,18 @@ class VISUALIZATION_OT_generate_visu(bpy.types.Operator):
             plot.create_bar(1, [1, 2, 3], 0.5)
         elif context.scene.visualization_types == 'HEATMAP':
             plot = HeatMap()
-            plot.create_heatmap([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-            print(image_path)
+            df = read_csv(context.scene.data_file_path)
+            plot.create_heatmap([df["x"], df["y"], df["z"]])
             plot.save_to_png(image_path)
 
         elif context.scene.visualization_types == 'BUBBLECHART':
             print('Bubblechart')
         elif context.scene.visualization_types == 'SCATTERPLOT':
-            print('Scatterplot')
+            plot = ScatterPlot()
+            df = read_csv(context.scene.data_file_path)
+            plot.create_scatter(df["x"], df["y"], df["z"])
+            plot.save_to_png(image_path)
+
 
         image = bpy.data.images.load(image_path, check_existing=False)
 
