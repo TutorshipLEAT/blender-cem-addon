@@ -67,7 +67,6 @@ def register_init():
         name="Visualization types",
         description="Choose the type of visualization",
         items=[
-            ('BARPLOT', 'Barplot', 'Barplot visualization'),
             ('HEATMAP', 'Heatmap', 'Heatmap visualization'),
             ('SCATTERPLOT', 'Scatterplot', 'Scatterplot visualization'),
             ('SURFACECHART', 'Surfacechart', 'Surfacechart visualization'),
