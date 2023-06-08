@@ -2,3 +2,7 @@ matplotlib
 fake-bpy-module-3.3
 trimesh
 seaborn
+numpy
+scipy
+pandas
+autopep8
