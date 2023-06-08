@@ -4,6 +4,7 @@ import os
 from .constants import VOXELS_DIR
 from .voxelizer import Voxelizer, CustomMaterial
 
+
 class OBJECT_OT_stl_to_msh(bpy.types.Operator):
     bl_idname = "object.stl_to_msh"
     bl_label = "Generate OBJ file"
@@ -72,8 +73,8 @@ def export_stl(context, filepath):
         obj.select_set(True)
 
 
-
-def stl_to_msh(mesh_size, blender_dir, stl_file, obj_file, custom_material: CustomMaterial = None):
+def stl_to_msh(mesh_size, blender_dir, stl_file, obj_file,
+               custom_material: CustomMaterial = None):
     """
     Converts a stl file to a msh file.
 

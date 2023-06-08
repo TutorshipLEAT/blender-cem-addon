@@ -31,9 +31,9 @@ def averages(vertices, dimension, frequency=1):
 
 def write_to_file(filename, data, headers):
     with open(filename, 'w') as f:
-        f.write(headers+'\n')
+        f.write(headers + '\n')
         for row in data:
-            f.write(','.join(str(x) for x in row)+'\n')
+            f.write(','.join(str(x) for x in row) + '\n')
 
 
 def run_simulation(dimension, context, path, save_path):
@@ -46,9 +46,9 @@ def run_simulation(dimension, context, path, save_path):
 
     filename = os.path.basename(path)
     vertices = parse_file(path)
-    if (vertices != None):
+    if (vertices is not None):
         freq = context.scene.settings.frequency
-        if freq == None:
+        if freq is None:
             freq = 1
         avgs = averages(vertices, dimension, freq)
         file_path = f'{save_path}/{filename}{dimension}-dimension.csv'

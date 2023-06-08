@@ -35,9 +35,9 @@ def register():
         for dep in DEPENDENCIES:
             if importlib.util.find_spec(dep) is None:
                 pip.main(["install", dep])
-    except:
+    except BaseException:
         pass
-    
+
     from . init import register_init
     register_init()
 

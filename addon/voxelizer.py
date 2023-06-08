@@ -69,7 +69,8 @@ class Voxelizer:
         self.mtl_file = os.path.join(
             self.blender_dir, "materials", mtl_name + ".mtl")
 
-    def export_obj(self, obj_file="export.obj", custom_material: CustomMaterial = None):
+    def export_obj(self, obj_file="export.obj",
+                   custom_material: CustomMaterial = None):
         """
         Exports the voxelized stl file as an obj file.
         """
@@ -121,6 +122,7 @@ class Voxelizer:
         with open(self.mtl_file, "w+") as f:
             f.write(mtl_data)
 
-    def _save(self, boxes, obj_file="export.obj", custom_material: CustomMaterial = None):
+    def _save(self, boxes, obj_file="export.obj",
+              custom_material: CustomMaterial = None):
         self._save_mtl(custom_material)
         self._save_obj(boxes, obj_file)

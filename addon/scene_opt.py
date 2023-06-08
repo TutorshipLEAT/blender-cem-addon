@@ -38,7 +38,8 @@ class OBJECT_PT_scene_section(bpy.types.Panel):
 
 
 class OBJECT_UL_List(bpy.types.UIList):
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+    def draw_item(self, context, layout, data, item, icon,
+                  active_data, active_propname, index):
         layout.label(text=item.object.name, icon='OBJECT_DATA')
 
 
@@ -57,7 +58,8 @@ def is_inside_cube(obj, cube):
     obj_min = Vector((min(v[i] for v in obj_bounds) for i in range(3)))
     obj_max = Vector((max(v[i] for v in obj_bounds) for i in range(3)))
 
-    return all(cube_min[i] <= obj_min[i] and obj_max[i] <= cube_max[i] for i in range(3))
+    return all(cube_min[i] <= obj_min[i] and obj_max[i]
+               <= cube_max[i] for i in range(3))
 
 
 def update_filtered_objects(self, context):
@@ -104,5 +106,3 @@ class CreateCubeSceneOperator(bpy.types.Operator):
         cube.name = "CubeScene"
         cube.display_type = 'WIRE'
         return {'FINISHED'}
-
-

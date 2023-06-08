@@ -7,6 +7,7 @@ from .plot import *
 from .constants import VISUALISATIONS_DIR
 from .visualisations import *
 
+
 class OBJECT_PT_visualization_section(bpy.types.Panel):
     bl_label = 'Visualization'
     bl_idname = 'OBJECT_PT_visualization_section'
@@ -44,7 +45,8 @@ class VISUALIZATION_OT_open_filebrowser(bpy.types.Operator, ImportHelper):
     bl_label = "Select .txt File"
     filepath = bpy.props.StringProperty(subtype="FILE_PATH")
 
-    filter_glob: bpy.props.StringProperty(default="*.txt;*.csv", options={'HIDDEN'})
+    filter_glob: bpy.props.StringProperty(
+        default="*.txt;*.csv", options={'HIDDEN'})
 
     def invoke(self, context: Context, event: Event):
         context.window_manager.fileselect_add(self)

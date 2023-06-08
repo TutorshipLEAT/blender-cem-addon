@@ -6,6 +6,7 @@ from addon.simulations import run_simulation
 
 SIMULATIONS_DIR = "export/simulations"
 
+
 class OBJECT_PT_simulation_section(bpy.types.Panel):
     bl_label = 'Simulation'
     bl_idname = 'OBJECT_PT_simulation_section'
@@ -20,19 +21,26 @@ class OBJECT_PT_simulation_section(bpy.types.Panel):
     def draw_simulation_section(self, context, layout):
         row = layout.row()
         row.label(text='Simulation type', icon='MOD_WAVE')
-        
+
         row = layout.column()
-        row.operator('simulation.open_filebrowser', text="Select .obj File", icon='FILEBROWSER')
-        
-        if (context.scene.obj_file_path and os.path.isfile(context.scene.obj_file_path)):
+        row.operator(
+            'simulation.open_filebrowser',
+            text="Select .obj File",
+            icon='FILEBROWSER')
+
+        if (context.scene.obj_file_path and os.path.isfile(
+                context.scene.obj_file_path)):
             row = layout.row()
             row.label(text=f'Selected file: {context.scene.obj_file_path}')
-        
+
             col = layout.column()
             col.prop(context.scene, 'simulation_types', text="")
-        
+
             row = layout.row()
-            row.operator('simulation.run_simulation', text="Run Simulation", icon='PLAY')
+            row.operator(
+                'simulation.run_simulation',
+                text="Run Simulation",
+                icon='PLAY')
         else:
             row = layout.row()
             row.label(text=f'No file selected.')
@@ -41,7 +49,8 @@ class OBJECT_PT_simulation_section(bpy.types.Panel):
 class SIMULATION_OT_open_filebrowser(bpy.types.Operator, ImportHelper):
     bl_idname = "simulation.open_filebrowser"
     bl_label = "Select .obj File"
-    filepath = bpy.props.StringProperty(subtype="FILE_PATH")  # Define this to get 'filepath' property to work correctly.
+    # Define this to get 'filepath' property to work correctly.
+    filepath = bpy.props.StringProperty(subtype="FILE_PATH")
 
     filter_glob: bpy.props.StringProperty(default="*.obj", options={'HIDDEN'})
 
@@ -60,9 +69,9 @@ class SIMULATION_OT_execute_simulation(bpy.types.Operator):
     bl_label = "Run Simulation"
 
     def execute(self, context):
-        
+
         blend_directory = bpy.path.abspath("//")
-        
+
         if not os.path.exists(blend_directory):
             self.report(
                 {'ERROR'}, "Blend file not saved, Please open an existing blend file or save the current blend file")
@@ -70,28 +79,34 @@ class SIMULATION_OT_execute_simulation(bpy.types.Operator):
 
         if not os.path.exists(os.path.join(blend_directory, SIMULATIONS_DIR)):
             os.makedirs(os.path.join(blend_directory, SIMULATIONS_DIR))
-        
+
         if not context.scene.obj_file_path:  # If no file is selected
-            self.report({'WARNING'}, "No .obj file selected. Please select a file to simulate.")
+            self.report(
+                {'WARNING'},
+                "No .obj file selected. Please select a file to simulate.")
             return {'CANCELLED'}
-        
+
         # Add simulation execution code here
-        print(f'Simulating: {context.scene.obj_file_path}') 
-        
+        print(f'Simulating: {context.scene.obj_file_path}')
+
         save_path = os.path.join(blend_directory, SIMULATIONS_DIR)
-        
+
         if (context.scene.simulation_types == 'UNIDIMENSIONAL'):
             run_simulation(1, context, context.scene.obj_file_path, save_path)
-            
+
         elif (context.scene.simulation_types == 'BIDIMENSIONAL'):
             run_simulation(2, context, context.scene.obj_file_path, save_path)
-            
+
         elif (context.scene.simulation_types == 'TRIDIMENSIONAL'):
             run_simulation(3, context, context.scene.obj_file_path, save_path)
-            
-        else :
-            self.report({'ERROR'}, "Invalid simulation type. Please select a valid simulation type.")
+
+        else:
+            self.report(
+                {'ERROR'},
+                "Invalid simulation type. Please select a valid simulation type.")
             return {'CANCELLED'}
-        
-        self.report({'INFO'}, f'Simulation on {os.path.basename(context.scene.obj_file_path)} completed successfully. Files saved to {save_path}')
+
+        self.report(
+            {'INFO'},
+            f'Simulation on {os.path.basename(context.scene.obj_file_path)} completed successfully. Files saved to {save_path}')
         return {'FINISHED'}

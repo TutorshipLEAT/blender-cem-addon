@@ -53,7 +53,8 @@ Labels = list[str]
 
 class PieChart(AbstractPlot):
 
-    def create_pie(self, wedges: Wedges, labels: Labels, autopct: str, colors=None):
+    def create_pie(self, wedges: Wedges, labels: Labels,
+                   autopct: str, colors=None):
         plt.pie(x=wedges, labels=labels, colors=colors, autopct=autopct)
 
 ######## bar_chart ##########
@@ -61,27 +62,30 @@ class PieChart(AbstractPlot):
 
 class BarPlot(AbstractPlot):
 
-    def create_bar(self, bar_position: int, data: list, width: float, bottom=0, align='center', color=None):
+    def create_bar(self, bar_position: int, data: list,
+                   width: float, bottom=0, align='center', color=None):
         plt.bar(bar_position, data, color=color,
                 width=width, bottom=bottom, align=align)
 
 
 class HeatMap(AbstractPlot):
 
-    def create_heatmap(self, data, annot=False, fmt=".1f", cmap=None, vmin=None, vmax=None, linewidth=.0, linecolor="white"):
+    def create_heatmap(self, data, annot=False, fmt=".1f", cmap=None,
+                       vmin=None, vmax=None, linewidth=.0, linecolor="white"):
         sns.heatmap(data=data, annot=annot, fmt=fmt,
                     cmap=cmap, vmin=vmin, vmax=vmax, linewidth=linewidth, linecolor=linecolor)
 
 
 class ScatterPlot(AbstractPlot):
 
-        def create_scatter(self, x, y, z, s=30, c=None, marker='o', cmap=None, norm=None, vmin=None, vmax=None, alpha=None, linewidths=None, verts=None, edgecolors=None, *, plotnonfinite=False, data=None, **kwargs):
-            fig = plt.figure()
-            ax = fig.add_subplot(projection='3d')
-            ax.scatter3D(x, y, z, color = "green")
-            ax.set_xlabel('X Label')
-            ax.set_ylabel('Y Label')
-            ax.set_zlabel('Z Label')
+    def create_scatter(self, x, y, z, s=30, c=None, marker='o', cmap=None, norm=None, vmin=None, vmax=None,
+                       alpha=None, linewidths=None, verts=None, edgecolors=None, *, plotnonfinite=False, data=None, **kwargs):
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+        ax.scatter3D(x, y, z, color="green")
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        ax.set_zlabel('Z Label')
 
 
 class VoxelPlot(AbstractPlot):
@@ -90,7 +94,8 @@ class VoxelPlot(AbstractPlot):
     NOT IMPLEMENTED
     """
 
-    def create_voxel(self, voxelarray, colors=None, facecolors=None, edgecolors=None, shade=True, norm=None, vmin=None, vmax=None, linewidth=0.0, edgecolor=None, **kwargs):
+    def create_voxel(self, voxelarray, colors=None, facecolors=None, edgecolors=None,
+                     shade=True, norm=None, vmin=None, vmax=None, linewidth=0.0, edgecolor=None, **kwargs):
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
 
@@ -114,8 +119,9 @@ class SurfaceChart(AbstractPlot):
         ax.zaxis.set_major_formatter('{x:.02f}')
         fig.colorbar(surf, shrink=0.5, aspect=5)
 
+
 class BubblePlot(AbstractPlot):
-    
+
     def create_bubble(self, x, y):
         plt.figure()
         plt.scatter(x, y, color='darkblue')
