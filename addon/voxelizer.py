@@ -1,6 +1,5 @@
 import trimesh
 import os
-import numpy as np
 
 
 class CustomMaterial(trimesh.visual.material.Material):

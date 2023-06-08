@@ -15,12 +15,12 @@ from .constants import DEPENDENCIES
 
 
 bl_info = {
-    "name": "STL to MSH Converter",
+    "name": "CEM LEAT Addon",
     "author": "Tutorship LEAT",
     "version": (1, 0),
     "blender": (3, 3, 5),
     "location": "View3D > Object",
-    "description": "Converts selected objects to an STL file and discretizes it using Gmsh",
+    "description": "Converts a mesh to voxels and visualizes them with a simulation",
     "warning": "",
     "doc_url": "",
     "category": "Object",
