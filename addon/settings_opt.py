@@ -20,6 +20,7 @@ class OBJECT_PT_parameters_section(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
+        print('draw parameters section')
         self.draw_parameters_section(context, layout)
 
     def draw_parameters_section(self, context, layout):

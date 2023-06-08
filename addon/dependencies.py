@@ -1,17 +1,17 @@
 import bpy
 
-from . pip_utils import Pip
 
-DEPENDENCIES = ['seaborn', 'trimesh', 'matplotlib', 'pandas']
+DEPENDENCIES = ['seaborn', 'trimesh', 'matplotlib', 'pandas', 'numpy']
 
 
 class DependenciesPreferences(bpy.types.AddonPreferences):
-    bl_idname = "mesh_converter"
-
+    bl_idname = "addon.dependencies.cem_leat"
+    
     def draw(self, context):
-
+        print('draw dependencies preferences')
         import importlib
-        # from src.pip_utils import Pip
+        from . pip_utils import Pip
+
         Pip._ensure_user_site_package()
 
         layout = self.layout
@@ -33,7 +33,9 @@ class DependenciesInstaller(bpy.types.Operator):
     def execute(self, context):
         try:
             self.report({"INFO"}, "Installing dependencies...")
-            # from src.pip_utils import Pip
+            
+            from . pip_utils import Pip
+
             Pip.upgrade_pip()
             Pip.install(*DEPENDENCIES)
 
