@@ -87,7 +87,7 @@ class ScatterPlot(AbstractPlot):
 class VoxelPlot(AbstractPlot):
 
     """
-    NOT IMPLEMENTED YET
+    NOT IMPLEMENTED
     """
 
     def create_voxel(self, voxelarray, colors=None, facecolors=None, edgecolors=None, shade=True, norm=None, vmin=None, vmax=None, linewidth=0.0, edgecolor=None, **kwargs):
