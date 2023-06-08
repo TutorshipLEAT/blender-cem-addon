@@ -33,7 +33,7 @@ def write_to_file(filename, data, headers):
     with open(filename, 'w') as f:
         f.write(headers+'\n')
         for row in data:
-            f.write(' '.join(str(x) for x in row)+'\n')
+            f.write(','.join(str(x) for x in row)+'\n')
 
 
 def run_simulation(dimension, context, path, save_path):
