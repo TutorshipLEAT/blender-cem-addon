@@ -51,5 +51,5 @@ def run_simulation(dimension, context, path, save_path):
         if freq == None:
             freq = 1
         avgs = averages(vertices, dimension, freq)
-        file_path = f'{save_path}/{filename}{dimension}-dimension.txt'
+        file_path = f'{save_path}/{filename}{dimension}-dimension.csv'
         write_to_file(file_path, avgs, header)
