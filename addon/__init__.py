@@ -98,8 +98,8 @@ def register():
         items=[
             ('BARPLOT', 'Barplot', 'Barplot visualization'),
             ('HEATMAP', 'Heatmap', 'Heatmap visualization'),
-            ('BUBBLECHART', 'Bubblechart', 'Bubblechart visualization'),
             ('SCATTERPLOT', 'Scatterplot', 'Scatterplot visualization'),
+            ('SURFACECHART', 'Surfacechart', 'Surfacechart visualization'),
         ]
     )
 

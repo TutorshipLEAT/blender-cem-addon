@@ -2,6 +2,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import os
 import matplotlib
+from matplotlib.ticker import LinearLocator
 matplotlib.use('Agg')
 
 Labels = list[str]
@@ -80,3 +81,16 @@ class ScatterPlot(AbstractPlot):
             ax.set_xlabel('X Label')
             ax.set_ylabel('Y Label')
             ax.set_zlabel('Z Label')
+
+class SurfaceChart(AbstractPlot):
+
+    def create_surface(self, x, y, z):
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+        surf = ax.plot_trisurf(x, y, z, linewidth=0, antialiased=False)
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        ax.set_zlabel('Z Label')
+        ax.zaxis.set_major_locator(LinearLocator(10))
+        ax.zaxis.set_major_formatter('{x:.02f}')
+        fig.colorbar(surf, shrink=0.5, aspect=5)

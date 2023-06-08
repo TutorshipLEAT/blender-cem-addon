@@ -83,13 +83,15 @@ class VISUALIZATION_OT_generate_visu(bpy.types.Operator):
             df = read_csv(context.scene.data_file_path)
             plot.create_heatmap([df["x"], df["y"], df["z"]])
             plot.save_to_png(image_path)
-
-        elif context.scene.visualization_types == 'BUBBLECHART':
-            print('Bubblechart')
         elif context.scene.visualization_types == 'SCATTERPLOT':
             plot = ScatterPlot()
             df = read_csv(context.scene.data_file_path)
             plot.create_scatter(df["x"], df["y"], df["z"])
+            plot.save_to_png(image_path)
+        elif context.scene.visualization_types == 'SURFACECHART':
+            plot = SurfaceChart()
+            df = read_csv(context.scene.data_file_path)
+            plot.create_surface(df["x"], df["y"], df["z"])
             plot.save_to_png(image_path)
 
 
