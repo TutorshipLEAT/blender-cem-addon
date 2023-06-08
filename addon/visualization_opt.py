@@ -91,7 +91,11 @@ class VISUALIZATION_OT_generate_visu(bpy.types.Operator):
             df = read_csv(context.scene.data_file_path)
             plot.create_scatter(df["x"], df["y"], df["z"])
             plot.save_to_png(image_path)
-
+        # elif context.scene.visualization_types == 'VOXELPLOT':
+        #     plot = VoxelPlot()
+        #     df = read_csv(context.scene.data_file_path)
+        #     plot.create_voxel([df["x"], df["y"], df["z"]])
+        #     plot.save_to_png(image_path)
 
         image = bpy.data.images.load(image_path, check_existing=False)
 

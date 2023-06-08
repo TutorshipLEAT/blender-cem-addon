@@ -1,7 +1,8 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
-import os
+import numpy as np
 import matplotlib
+from .voxelizer import Voxelizer
 matplotlib.use('Agg')
 
 Labels = list[str]
@@ -80,3 +81,20 @@ class ScatterPlot(AbstractPlot):
             ax.set_xlabel('X Label')
             ax.set_ylabel('Y Label')
             ax.set_zlabel('Z Label')
+
+
+class VoxelPlot(AbstractPlot):
+
+    """
+    NOT IMPLEMENTED YET
+    """
+
+    def create_voxel(self, voxelarray, colors=None, facecolors=None, edgecolors=None, shade=True, norm=None, vmin=None, vmax=None, linewidth=0.0, edgecolor=None, **kwargs):
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+
+        ax.voxels(np.array(voxelarray), facecolors=facecolors, edgecolors=edgecolors,
+                  shade=shade, norm=norm, vmin=vmin, vmax=vmax, linewidth=linewidth, edgecolor=edgecolor, **kwargs)
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        ax.set_zlabel('Z Label')
