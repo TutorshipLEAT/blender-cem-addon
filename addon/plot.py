@@ -94,3 +94,11 @@ class SurfaceChart(AbstractPlot):
         ax.zaxis.set_major_locator(LinearLocator(10))
         ax.zaxis.set_major_formatter('{x:.02f}')
         fig.colorbar(surf, shrink=0.5, aspect=5)
+
+class BubblePlot(AbstractPlot):
+    
+    def create_bubble(self, x, y):
+        plt.figure()
+        plt.scatter(x, y, color='darkblue')
+        plt.xlabel('X label')
+        plt.ylabel('Y label')

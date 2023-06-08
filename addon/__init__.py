@@ -100,6 +100,7 @@ def register():
             ('HEATMAP', 'Heatmap', 'Heatmap visualization'),
             ('SCATTERPLOT', 'Scatterplot', 'Scatterplot visualization'),
             ('SURFACECHART', 'Surfacechart', 'Surfacechart visualization'),
+            ('BUBBLEPLOT', 'Bubbleplot', 'Bubbleplot visualization'),
         ]
     )
 
