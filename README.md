@@ -35,6 +35,10 @@ Now Blender is open in development mode.
 
 ![Blender terminal](./docs/blender_open.png)
 
+4. In development mode you can easily reload the add-on when you modified the files by using `CTRL+SHIFT+P` and select `Blender: Reload Scripts`
+
+![Reload add-on](./docs/reload_addon.png)
+
 ### Install in production mode
 
 1. First you need to generate the zip file of the add-on project. In the terminal, run the following command at the root path of the project :
@@ -65,9 +69,19 @@ zip -r blender-cem-addon.zip ./addon
   adding: addon/simulation_opt.py (deflated 70%)
 ```
 
-## Dependencies
+The file `blender-cem-addon.zip` has been generated.
 
-Now that you've installed the add-ons you can install the dependecies. Dependecies are register in the [constant.py](./addon/constants.py) file. You can add dependencies by adding new item to this list :
+2. Now you can install the add-on in Blender. Open Blender and go to `Edit > Preferences > Add-ons > Install...` and select the zip file generated in the previous step.
+
+![Install add-on](./docs/install_addon.png)
+
+Don't forget to check the box to activate the add-on.
+
+![Activate add-on](./docs/addon_installed.png)
+
+## Project dependencies
+
+Dependencies are register in the [constants.py](./addon/constants.py) file. You can add dependencies by adding new item to this list :
 
 ```py
 DEPENDENCIES = ['seaborn', 'trimesh', 'matplotlib', 'pandas', 'numpy', 'scipy']
