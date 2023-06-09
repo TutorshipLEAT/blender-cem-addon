@@ -13,7 +13,7 @@ Install Blender from the [Official Website](https://www.blender.org/download/) t
 
 ## First install
 
-This section is a *step-by-step* guide for installing the addon in order to contribute to the project.
+This section is a _step-by-step_ guide for installing the addon in order to contribute to the project.
 
 ### Configure Workspace
 
@@ -115,3 +115,51 @@ You should have now the following screen :
 ## Documentation
 
 ## Use the add-on
+
+## Contribution
+
+### Available visualization
+
+Several visualizations are included in the add-on. There are _Unidimensional_, _Bidimensional_ and _Tridimensional_ visualization.
+
+Available visualizations are :
+
+| Visualization    | Link                                                                              |
+| ---------------- | --------------------------------------------------------------------------------- |
+| Heatmap          | [link](https://seaborn.pydata.org/generated/seaborn.heatmap.html)                 |
+| 3D Scatter plot  | [link](https://matplotlib.org/stable/plot_types/3D/scatter3d_simple.html)         |
+| 3D Surface chart | [link](https://matplotlib.org/stable/gallery/mplot3d/surface3d.html)              |
+| Bubble plot      | [link](https://matplotlib.org/stable/gallery/shapes_and_collections/scatter.html) |
+
+### Add a visualization
+
+In order to extend available visualization, it is necessary to modify 3 different files.
+
+First, you need to edit the file [plot.py](./addon/plot.py).
+
+In this file you need to create a class for the type of visualization you want to add.  
+The new class **must** extend the abstract class **AbstractPlot**.  
+Each plotting class should contains at least one method called _create_plot_ which contains all the steps needed to create the plot.
+
+Here is the class template:
+
+```py
+class ClassName(AbstractPlot)
+
+    """
+        x, y, z parameters depend on the visualization (1D, 2D, 3D)
+    """
+    def create_plot(x, y, z):
+        #plot instructions here
+```
+
+Once you have finished the class, you need to add the new type of visualizaiton to existing ones.
+
+To do so, go into the file [init.py](./addon/init.py).
+
+When you are in the file, you need to edit the variable `bpy.types.Scene.visualization_types`.
+
+Edit by adding your plot in the same format as other:  
+`('PLOTNAME', 'Plotname', 'Plotname visualization')`
+
+Finally, the
