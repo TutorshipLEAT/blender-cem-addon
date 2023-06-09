@@ -111,7 +111,6 @@ You should have now the following screen :
 
 6.
 
-
 ## Documentation
 
 ## Use the add-on
@@ -162,7 +161,19 @@ When you are in the file, you need to edit the variable `bpy.types.Scene.visuali
 Edit by adding your plot in the same format as other:
 `('PLOTNAME', 'Plotname', 'Plotname visualization')`
 
-Finally, the
+Finally, the last file to edit is [visualization_opt.py](./addon/visualization_opt.py).
+
+In the file, find the class `class VISUALIZATION_OT_generate_visu(bpy.types.Operator)`, then in the method `execute`, find the _if_ condition on `context.scene.visualization_types` and add a _elif_ condition as it is done for the other options.
+
+Here is the template:
+
+```py
+elif context.scene.visualization_types == 'PLOTNAME':
+    plot = ClassName() #it is the class instanciation
+    df = read_csv(context.scene.data_file_path) #reads data
+    plot.create_plot(df["x"], df["y"]) #call the method you coded before, add here all needed parameters
+    plot.save_to_png(image_path)
+```
 
 
 ### Add new global settings

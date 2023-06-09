@@ -5,7 +5,7 @@ from bpy.types import Context, Event
 from bpy_extras.io_utils import ImportHelper
 from .plot import *
 from .constants import VISUALISATIONS_DIR
-from .visualisations import *
+from .visualizations import *
 
 
 class OBJECT_PT_visualization_section(bpy.types.Panel):
