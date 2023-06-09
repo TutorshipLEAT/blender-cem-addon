@@ -5,14 +5,14 @@ from .constants import VOXELS_DIR
 from .voxelizer import Voxelizer, CustomMaterial
 
 
-class OBJECT_OT_stl_to_msh(bpy.types.Operator):
+class OBJECT_OT_stl_to_obj(bpy.types.Operator):
     """
     Operator to convert STL files to MSH format.
 
     Provides an interface for the user to perform the conversion from the Blender UI.
     """
 
-    bl_idname = "object.stl_to_msh"
+    bl_idname = "object.stl_to_obj"
     bl_label = "Generate OBJ file"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -71,7 +71,7 @@ class OBJECT_OT_stl_to_msh(bpy.types.Operator):
             bpy.ops.export_mesh.stl(filepath=stl_file, use_selection=True)
 
             # Convert the STL file to a OBJ file.
-            stl_to_msh(global_settings.mesh_size, blend_directory, stl_file, obj_file,
+            stl_to_obj(global_settings.mesh_size, blend_directory, stl_file, obj_file,
                        CustomMaterial(**custom_properties))
 
             # Deselect the current object.
@@ -113,7 +113,7 @@ def export_stl(context, filepath):
         obj.select_set(True)
 
 
-def stl_to_msh(mesh_size, blender_dir, stl_file, obj_file,
+def stl_to_obj(mesh_size, blender_dir, stl_file, obj_file,
                custom_material: CustomMaterial = None):
     """
     Converts an STL file to an OBJ file.

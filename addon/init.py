@@ -10,7 +10,7 @@ from bpy.props import (
 
 # These are the import statements for all the components, operators,
 # panels, and other elements of the addon.
-from . converters import OBJECT_OT_stl_to_msh
+from . converters import OBJECT_OT_stl_to_obj
 from . scene_opt import CreateCubeSceneOperator, FilteredObjectItem, OBJECT_PT_scene_section, OBJECT_UL_List, UpdateListOperator, update_filtered_objects
 from . settings_opt import GlobalSettings, OBJECT_PT_parameters_section
 from . simulation_opt import OBJECT_PT_simulation_section, SIMULATION_OT_execute_simulation, SIMULATION_OT_open_filebrowser
@@ -19,7 +19,7 @@ from . visualization_opt import OBJECT_PT_visualization_section, VISUALIZATION_O
 
 # All the classes that will be registered to Blender are grouped in this tuple.
 classes = (
-    OBJECT_OT_stl_to_msh,
+    OBJECT_OT_stl_to_obj,
     OBJECT_PT_parameters_section,
     OBJECT_PT_scene_section,
     OBJECT_PT_simulation_section,

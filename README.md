@@ -87,6 +87,31 @@ Dependencies are register in the [constants.py](./addon/constants.py) file. You 
 DEPENDENCIES = ['seaborn', 'trimesh', 'matplotlib', 'pandas', 'numpy', 'scipy']
 ```
 
+## How to use
+
+Before starting, in order to use the addon, make sure to have saved your blender project. It's better to have an empty folder for the project, because the addon will create new folders inside the project folder.
+
+1. Open the CEM tab in the Layout workspace in Blender. You should face the following screen : 
+
+![Blender terminal](./docs/blender_start.png)
+
+2. You can noz configure the global settings of the addon. Mesh size determines the size of the voxels. Frequency will be used later on the simulation.
+
+3. Create the cube Scene. This cube will be used to define the simulation space. You can move it, scale it, rotate it.
+
+You should have now the following screen :
+
+![Blender terminal](./docs/blender_cube_scene.png)
+
+4. You can noz manipulate the scene and add objects to the scene. Be sure to scale, rotate and move the cube scene to fit the simulation space.
+
+5. The Object Properties Tab is where you can add properties of the object. You have the option to add multiple properties to the object and configure them.
+
+![Blender terminal](./docs/blender_properties.png)
+
+6. 
+
+
 ## Documentation
 
 ## Use the add-on

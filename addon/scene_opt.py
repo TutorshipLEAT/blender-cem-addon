@@ -1,7 +1,7 @@
 import bpy
 
 from mathutils import Vector
-from . converters import OBJECT_OT_stl_to_msh
+from . converters import OBJECT_OT_stl_to_obj
 
 
 class OBJECT_PT_scene_section(bpy.types.Panel):
@@ -59,8 +59,8 @@ class OBJECT_PT_scene_section(bpy.types.Panel):
         # list and the other to convert the selected items to MSH format
         row = layout.row()
         row.operator("scene.update_list", text="Update List")
-        row.operator(OBJECT_OT_stl_to_msh.bl_idname,
-                     text="Convert Selected to MSH")
+        row.operator(OBJECT_OT_stl_to_obj.bl_idname,
+                     text="Voxelize")
 
 
 class OBJECT_UL_List(bpy.types.UIList):
