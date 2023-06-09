@@ -2,6 +2,7 @@ all: clean zip
 
 clean:
 	rm -rf blender-cem-addon.zip
+	rm -rf ./addon/__pycache__
 
 zip:
 	zip -r blender-cem-addon.zip .

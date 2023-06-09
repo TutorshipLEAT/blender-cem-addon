@@ -8,8 +8,6 @@ class CustomMaterial(trimesh.visual.material.Material):
 
     Parameters
     ----------
-    mtl_name : str
-        Name of the material.
     kwargs : dict
         Keyword arguments for the material.
     """
@@ -22,7 +20,7 @@ class CustomMaterial(trimesh.visual.material.Material):
         return None
 
     def __hash__(self):
-        return hash(self.mtl_name)
+        return hash(self.kwargs)
 
     def to_obj(self, mtl_file):
         """
