@@ -4,7 +4,7 @@ Addon to convert object in the scene in voxels. Simulate and visualize stuff aro
 
 ![Example addon](./docs/example_addon.png)
 
-## Requierments
+## Requirements
 
 Install Blender from the [Official Website](https://www.blender.org/download/) the version 3.3 or above.
 
@@ -19,21 +19,52 @@ This section is a *step-by-step* guide for installing the addon in order to cont
 
 In order to develop the add-on, you should use VSCode. You can install the extension [Blender Development](https://marketplace.visualstudio.com/items?itemName=JacquesLucke.blender-development) to have a better experience.
 
-Once you have installed the extension, you can open the
+Once you have installed the extension, you can open Blender by using `CTRL+SHIFT+P`.
 
-1. Start Blender
+1. Select `Blender: Start`
 
-![Example addon](./docs/blender_extension.png)
+![Blender Extension](./docs/blender_extension.png)
 
-2. Select the blender application
+2. For the first run select `Choose a new Blender executable...`
 
-![Example addon](./docs/select_blender.png)
+![Select Blender](./docs/select_blender.png)
 
 Now Blender is open in development mode.
 
 3. You can now see the console and the python editor to debug the add-on easily.
 
-![Example addon](./docs/blender_open.png)
+![Blender terminal](./docs/blender_open.png)
+
+### Install in production mode
+
+1. First you need to generate the zip file of the add-on project. In the terminal, run the following command at the root path of the project :
+
+```sh
+make
+```
+
+You should have this output:
+
+```sh
+➜  blender-cem-addon git:(main) ✗ make
+rm -rf blender-cem-addon.zip
+rm -rf ./addon/__pycache__
+zip -r blender-cem-addon.zip ./addon
+  adding: addon/ (stored 0%)
+  adding: addon/plot.py (deflated 70%)
+  adding: addon/visualisations.py (deflated 25%)
+  adding: addon/constants.py (deflated 26%)
+  adding: addon/simulations.py (deflated 63%)
+  adding: addon/__init__.py (deflated 53%)
+  adding: addon/scene_opt.py (deflated 69%)
+  adding: addon/voxelizer.py (deflated 72%)
+  adding: addon/converters.py (deflated 69%)
+  adding: addon/init.py (deflated 71%)
+  adding: addon/visualization_opt.py (deflated 70%)
+  adding: addon/settings_opt.py (deflated 64%)
+  adding: addon/simulation_opt.py (deflated 70%)
+```
+
 ## Dependencies
 
 Now that you've installed the add-ons you can install the dependecies. Dependecies are register in the [constant.py](./addon/constants.py) file. You can add dependencies by adding new item to this list :
