@@ -91,7 +91,7 @@ DEPENDENCIES = ['seaborn', 'trimesh', 'matplotlib', 'pandas', 'numpy', 'scipy']
 
 Before starting, in order to use the addon, make sure to have saved your blender project. It's better to have an empty folder for the project, because the addon will create new folders inside the project folder.
 
-1. Open the CEM tab in the Layout workspace in Blender. You should face the following screen : 
+1. Open the CEM tab in the Layout workspace in Blender. You should face the following screen :
 
 ![Blender terminal](./docs/blender_start.png)
 
@@ -109,7 +109,7 @@ You should have now the following screen :
 
 ![Blender terminal](./docs/blender_properties.png)
 
-6. 
+6.
 
 
 ## Documentation
@@ -137,8 +137,8 @@ In order to extend available visualization, it is necessary to modify 3 differen
 
 First, you need to edit the file [plot.py](./addon/plot.py).
 
-In this file you need to create a class for the type of visualization you want to add.  
-The new class **must** extend the abstract class **AbstractPlot**.  
+In this file you need to create a class for the type of visualization you want to add.
+The new class **must** extend the abstract class **AbstractPlot**.
 Each plotting class should contains at least one method called _create_plot_ which contains all the steps needed to create the plot.
 
 Here is the class template:
@@ -159,7 +159,32 @@ To do so, go into the file [init.py](./addon/init.py).
 
 When you are in the file, you need to edit the variable `bpy.types.Scene.visualization_types`.
 
-Edit by adding your plot in the same format as other:  
+Edit by adding your plot in the same format as other:
 `('PLOTNAME', 'Plotname', 'Plotname visualization')`
 
 Finally, the
+
+
+### Add new global settings
+
+You can configure the global settings of the add-on. Mesh size determines the size of the voxels. Frequency will be used later on the simulation.
+
+These settings can be easily modified in the file `settings_opt.py`.
+
+```py
+class GlobalSettings(PropertyGroup):
+    mesh_size: FloatProperty()
+    frequency: IntProperty()
+
+    # for example here is the new settings to add
+    custom_settings: IntProperty()
+```
+
+You also need to edit the class `OBJECT_PT_parameters_section` in the `draw_parameters_section` method.
+
+```py
+layout.prop(global_settings, "mesh_size")
+layout.prop(global_settings, "frequency")
+# the settings needs to be added in the layout
+layout.prop(global_settings, "custom_settings")
+```
