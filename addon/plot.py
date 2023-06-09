@@ -6,16 +6,21 @@ from .voxelizer import Voxelizer
 from matplotlib.ticker import LinearLocator
 matplotlib.use('Agg')
 
+# Define type aliases for convenience
 Labels = list[str]
 Ticks = list[int]
 
 
+# Base class for creating different types of plots
 class AbstractPlot:
 
     def __init__(self):
+        # Clear current figure
         plt.clf()
 
+    # Function to set the legend on the plot
     def set_legend(self, **kwargs) -> None:
+        # Various ways to call legend, based on what's passed in kwargs
         if ('labels' in kwargs and 'handles' in kwargs):
             plt.legend(labels=kwargs['labels'], handles=kwargs['handles'])
         elif ('labels' in kwargs and not 'handles' in kwargs):
@@ -23,6 +28,8 @@ class AbstractPlot:
         elif (not 'labels' in kwargs and 'handles' in kwargs):
             plt.legend(handles=kwargs['handles'])
 
+    # Remaining methods are self-explanatory setters for title, labels, ticks,
+    # etc.
     def set_title(self, title: str) -> None:
         plt.title(title)
 
@@ -51,8 +58,10 @@ Wedges = list[int]
 Labels = list[str]
 
 
+# Subclass for creating pie charts
 class PieChart(AbstractPlot):
 
+    # Function to create a pie chart
     def create_pie(self, wedges: Wedges, labels: Labels,
                    autopct: str, colors=None):
         plt.pie(x=wedges, labels=labels, colors=colors, autopct=autopct)
@@ -60,24 +69,20 @@ class PieChart(AbstractPlot):
 ######## bar_chart ##########
 
 
-class BarPlot(AbstractPlot):
-
-    def create_bar(self, bar_position: int, data: list,
-                   width: float, bottom=0, align='center', color=None):
-        plt.bar(bar_position, data, color=color,
-                width=width, bottom=bottom, align=align)
-
-
+# Subclass for creating heatmaps
 class HeatMap(AbstractPlot):
 
+    # Function to create a heatmap
     def create_heatmap(self, data, annot=False, fmt=".1f", cmap=None,
                        vmin=None, vmax=None, linewidth=.0, linecolor="white"):
         sns.heatmap(data=data, annot=annot, fmt=fmt,
                     cmap=cmap, vmin=vmin, vmax=vmax, linewidth=linewidth, linecolor=linecolor)
 
 
+# Subclass for creating scatter plots
 class ScatterPlot(AbstractPlot):
 
+    # Function to create a scatter plot
     def create_scatter(self, x, y, z, s=30, c=None, marker='o', cmap=None, norm=None, vmin=None, vmax=None,
                        alpha=None, linewidths=None, verts=None, edgecolors=None, *, plotnonfinite=False, data=None, **kwargs):
         fig = plt.figure()
@@ -86,6 +91,8 @@ class ScatterPlot(AbstractPlot):
         ax.set_xlabel('X Label')
         ax.set_ylabel('Y Label')
         ax.set_zlabel('Z Label')
+
+# Subclass for creating voxel plots (currently not implemented)
 
 
 class VoxelPlot(AbstractPlot):
@@ -120,8 +127,10 @@ class SurfaceChart(AbstractPlot):
         fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
+# Subclass for creating surface charts
 class BubblePlot(AbstractPlot):
 
+    # Function to create a surface chart
     def create_bubble(self, x, y):
         plt.figure()
         plt.scatter(x, y, color='darkblue')

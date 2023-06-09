@@ -13,7 +13,7 @@
 
 from .constants import DEPENDENCIES
 
-
+# Metadata about the addon.
 bl_info = {
     "name": "CEM LEAT Addon",
     "author": "Tutorship LEAT",
@@ -28,6 +28,13 @@ bl_info = {
 
 
 def register():
+    """
+    Function to register the addon.
+
+    It attempts to install any missing dependencies from the DEPENDENCIES list defined in 'constants.py'.
+    Then it calls the register_init function from the '__init__.py' file.
+    """
+
     try:
         # install dependencies
         import importlib
@@ -38,10 +45,17 @@ def register():
     except BaseException:
         pass
 
+    # Import and call the register function from the 'init' file
     from . init import register_init
     register_init()
 
 
 def unregister():
+    """
+    Function to unregister the addon.
+
+    It calls the unregister_init function from the '__init__.py' file.
+    """
+
     from . init import unregister_init
     unregister_init()
