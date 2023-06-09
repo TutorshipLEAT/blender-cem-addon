@@ -109,11 +109,9 @@ You should have now the following screen :
 
 ![Blender terminal](./docs/blender_properties.png)
 
-6.
+6. You can now simulate the scene. You can choose the simulation type and the frequency of the simulation. The simulation will be saved in the project folder.
 
-## Documentation
-
-## Use the add-on
+7. Lastly you can modify the visualization of the simulation. You can choose the type of visualization and the frequency of the visualization. The visualization will be saved in the project folder. 
 
 ## Contribution
 
